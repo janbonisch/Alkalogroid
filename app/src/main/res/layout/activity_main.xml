@@ -15,22 +15,24 @@
     <ImageButton
         android:id="@+id/drink"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:adjustViewBounds="false"
         android:cropToPadding="true"
-        app:srcCompat="@mipmap/wine_glass_512" />
+        app:srcCompat="@drawable/wine_glass_512" />
 
     <ImageButton
         android:id="@+id/imageButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:srcCompat="@mipmap/fork_64" />
+        app:srcCompat="@drawable/fork_64" />
 
     <Button
         android:id="@+id/scan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:lineSpacingExtra="18sp"
+        android:visibility="gone"
         android:text="@string/scan" />
 
 </LinearLayout>
