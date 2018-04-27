@@ -1,9 +1,9 @@
-package com.scurab.barcodescanner2;
+package com.scurab.barcodescanner2.forest;
 
 
 import com.google.gson.annotations.SerializedName;
 
-public class Lahef {
+public class XsampleLahef {
     @SerializedName("Year")
     public int year;
     @SerializedName("Name")
