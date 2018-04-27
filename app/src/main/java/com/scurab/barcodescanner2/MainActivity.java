@@ -11,12 +11,22 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 /**
  * Created by jbruchanov on 05/04/2018.
  */
 public class MainActivity extends AppCompatActivity {
 
     private TextView mTextView;
+    private boolean mIsResumed;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if(result != null) {
+        if (result != null) {
             final String scanResult = result.getContents();
             if (scanResult == null) {
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
@@ -56,5 +66,65 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    public void sendRestCall() {
+        Lahef l = new Lahef();
+        l.name = "Kontusovka";
+        l.year = 1920;
+        l.voltaaaz = 40;
+        l.volume = 0.75;
+
+        final Call<LahefResponse> call = getApi().send(l);
+        //tohle je nejjednodussi,
+        //pokud bys potreboval nejak retezit "pekne" a nebo delat neco slozitejsiho
+        //tak na to je pak dalsi pekna libka...
+        call.enqueue(new Callback<LahefResponse>() {
+            @Override
+            public void onResponse(Call<LahefResponse> call, Response<LahefResponse> response) {
+                if (mIsResumed) {
+                    //potreba bejt jistej, ze appka bezi, jinak delas neco na "pozadi" a nemusi to fachat
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LahefResponse> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mIsResumed = true;
+    }
+
+    @Override
+    protected void onPause() {
+        mIsResumed = false;
+        super.onPause();
+    }
+
+    private RestApi mRestApi;
+
+    private RestApi getApi() {
+        if (mRestApi == null) {
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .addInterceptor(loggingInterceptor)
+                    .build();
+
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl("https://www.mujwebik.cz/")
+                    .client(client)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            mRestApi = retrofit.create(RestApi.class);
+        }
+        return mRestApi;
     }
 }
