@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         mTextView = findViewById(R.id.result);
 
-        findViewById(R.id.scan).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.drink).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startScan();
@@ -128,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
         integrator.setCameraId(0);  // Use a specific camera of the device
         integrator.setBeepEnabled(false);
         integrator.setBarcodeImageEnabled(true);
+        integrator.setOrientationLocked(false);
+        integrator.setTimeout(5000);
         integrator.initiateScan();
     }
 
