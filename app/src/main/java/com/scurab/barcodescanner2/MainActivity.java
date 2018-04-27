@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         integrator.setBeepEnabled(false);
         integrator.setBarcodeImageEnabled(true);
         integrator.setOrientationLocked(false);
-        integrator.setTimeout(5000);
+        integrator.setTimeout(25000);
         integrator.initiateScan();
     }
 
