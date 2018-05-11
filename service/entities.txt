@@ -1,0 +1,222 @@
+// Uživatel 
+User
+{
+  // key, required, length = 20
+  string UserName;
+  // required, length = 100
+  string DisplayName;
+  // Datum zacatku konzumace. V tento datum by mely byt vsechny zavazky vyrovnany (zacina se od 0).
+  DateTime? DtConsStart;
+}
+
+// Kredit uživatele
+UserCredit
+{
+  // key, auto-generated (read-only)
+  int UserCreditID;
+  // required, length = 20, reference to User
+  string UserName;
+  // required
+  decimal Credit;
+  // read-only
+  DateTime DtInsert;
+}
+
+// Mobil
+UserDevice
+{
+  // key, required, length = 100
+  string Imei;
+  // required, length = 20, reference to User
+  string UserName;
+}
+
+// Druh lahve
+ItemdType
+{
+  // key, auto-generated (read-only)
+  int ItemdTypeID;
+  // required
+  short Year;
+  // required, length = 40
+  string Name;
+  // length = 100
+  string Description;
+  // required
+  decimal Price;
+  // required
+  double Volume;
+  // required
+  double PercentVol;
+}
+
+// Lahev
+Itemd
+{
+  // key, required
+  int ItemdID;
+  // required, reference to ItemdType
+  int ItemdType;
+  // required, length = 20, reference to User
+  string Username;
+  // pokud neni zadano, bere se z typu
+  decimal? Price;
+  // read-only
+  DateTime DtInsert;
+}
+
+// Jídlo
+Itemf
+{
+  // key, auto-generated (read-only)
+  int ItemfID;
+  // required, length = 20, reference to User
+  string Username;
+  // required
+  decimal Price;
+  // read-only
+  DateTime DtInsert;
+}
+
+// Konzumace sklenek
+Consd
+{
+  // key, auto-generated (read-only)
+  int ConsdID;
+  // required, reference to Itemd
+  int ItemdID;
+  // required, length = 100
+  string Imei;
+  // read-only, reference to User
+  string Username;
+  // pokud neni zadana, tak 0.2
+  double? Amount;
+  // read-only
+  DateTime DtCons;
+}
+
+// Konzumace jídla
+Consf
+{
+  // key, auto-generated (read-only)
+  int ConsfID;
+  // required, refernce to Itemf
+  int ItemfID;
+  // required, length = 100
+  string Imei;
+  // read-only, reference to User
+  string Username;
+  // read-only
+  DateTime DtCons;
+}
+
+// Lahev - pøehled
+ItemdView
+{
+  // key
+  int ItemdID;
+  // roèník
+  short Year;
+  // Odrùda
+  string Name;
+  // Popis
+  string Description;
+  // Objem
+  double Volume;
+  // Procento alk.
+  double PercentVol;
+  // cena
+  int Price;
+  // datum naskladnìní
+  DateTime DtInsert;
+  // naskladnil
+  string Username;
+  // naskladnil - jméno
+  string DisplayName;
+  // zkonzumovaná èást
+  double ConsAmount;
+  // start konzumace
+  DateTime? DtConsStart;
+  // konec konzumace
+  DateTime? DtConsEnd;
+}
+
+// Jídlo - pøehled
+ItemfView
+{
+  // key
+  int ItemfID;
+  // naskladnil
+  string Username;
+  // naskladnil - jméno
+  string DisplayName;
+  // cena
+  decimal Price;
+  // datum naskladneni
+  DateTime DtInsert;
+  // poèet konzumujících
+  int Consumers;
+}
+
+// Sklenka - pøehled
+ConsdView
+{
+  // key
+  int ConsdID;
+  // roèník
+  short Year;
+  // Odrùda
+  string Name;
+  // Popis
+  string Description;
+  // Procento alk.
+  double PercentVol;
+  // objem
+  double Volume;
+  // cena
+  decimal ConsPrice
+  // konzument
+  string Username;
+  // Zkonzumováno kdy
+  DateTime DtCons
+}
+
+// Jídlo - pøehled
+ConsfView
+{
+  // key
+  int ConsfID;
+  // zkonzumovaná èást
+  double ConsAmount;
+  // cena
+  decimal ConsPrice;
+  // konzument
+  string Username;
+  // Zkonzumováno kdy
+  DateTime DtCons;
+}
+
+// Kredit - pøehled
+UserConsView
+{
+  // user
+  string Username;
+  // user - jméno
+  string DisplayName;
+  // user - vloženo
+  decimal Credit;
+  // lahví koupeno
+  int ConsdIn;
+  // lahví zkonzumováno
+  double ConsdOut;
+  // cena za koupené lahve
+  decimal PricedIn;
+  // cena za zkonzumované lahve
+  decimal PricedOut;
+  // cena za koupené jídlo
+  decimal PrcefIn;
+  // cena za zkonzumované jídlo
+  decimal PricefOut;
+  // bilance
+  decimal CreditTotal;
+}

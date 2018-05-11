@@ -1,0 +1,108 @@
+Seznam oprávnìných uzivatelu. Použito pøi registraci mobilu, naskladòování, pøidání kreditu.
+GET api/Users
+
+Nový uživatel
+POST api/Users
+{"Username":"meca","DisplayName":"Meca Martin"}
+
+Zmìna zobrazovaného jména
+PUT api/users/<username>
+{"Username":"meca","DisplayName":"Meca Martin"}
+
+Reset zaèátku konzumace.
+PUT api/users/ResetConsStart/<username>
+
+Smazání uživatele
+DELETE api/Users/<username>
+
+Vložení kreditu uživatele
+POST api/UserCredits
+{"Username":"meca","Credit":100}
+
+Omyl pøi vložení kreditu
+DELETE api/UserCredits/<id>
+
+Pøehled vkládání kreditu uživatele v zadaném roce
+GET api/UserCredits/GetForUserAndYear/<username>/<year>
+
+Registrace mobilu uživatele:
+POST api/UserDevices
+{"Imei":"test1","Username":"meca"}
+
+Odregistrace mobilu uživatele:
+DELETE api/UserDevices/<imei>
+
+Nový druh lahve pøi naskladòování.
+POST api/ItemdTypes
+{"Year":"2016","Name":"Svatovavøinecké","Price":"120","Volume":"0.75","PercentVol":"13"}
+
+Smazání druhu lahve. Pøi chybném založení druhu lahve pøi naskladòování.
+DELETE api/ItemdTypes/<id>
+
+Zmìna druhu lahve. Možno mìnit pøi naskladòování.
+PUT api/ItemdTypes/<id>
+{"ItemdTypeID":1,"Year":2016,"Name":"Svatovavøinecké","Price":120,"Volume":0.75,"PercentVol":13}
+
+Seznam druhù lahví pro vybraný roèník. Použito pøi naskladòování.
+GET api/ItemdTypes/GetForYear/<year>
+
+Naskladnìní lahve.
+POST api/Itemds
+{"ItemdID":1,"ItemdTypeID":1,"Username":"meca"}
+
+Omyl pøi naskladnìní lahve.
+DELETE api/Itemds/<id>
+
+Naskladnìní jídla.
+POST api/Itemfs
+{"Username":"meca","Price":105.6}
+
+Omyl pøi naskladnìní jídla.
+DELETE api/Itemfs/<id>
+
+Konzumace sklenky.
+POST api/Consds
+{"ItemdID":1,"Imei":"test"}
+
+Omyl pøi konzumaci sklenky.
+DELETE api/Consds/<id>
+
+Pøihlášení ke konzumaci jídla.
+POST api/Consfs
+{"ItemfID":1,"Imei":"test1"}
+
+Omyl pøi pøihlášení ke konzumaci jídla.
+DELETE api/Confs/<id>
+
+Pøehled konzumace lahví naèatých v zadaný den.
+GET api/ItemdViews/GetForDay/<year>-<month>-<day>
+
+Pøehled nezkonzumovaných lahví. Možno mazat.
+GET api/ItemdViews/GetAvailable
+
+Pøehled konzumace lahví naskladnìných v urèitý den.
+GET api/ItemdViews/GetForDayInserted/<year>-<month>-<day>
+
+Seznam jídla, u kterého nezaèala konzumace.
+GET api/ItemfViews/GetAvailable
+
+Seznam naskladnìného jídla v urèitý den.
+GET api/ItemfViews/GetForDayInserted/<year>-<month>-<day>
+
+Pøehled konzumace pití uživatele za urèitý den.
+GET api/ConsdViews/GetForImeiAndDay/<imei>/<year>-<month>-<day>
+
+Pøehled konzumace jídla uživatele za urèitý den.
+GET api/ConsfViews/GetForImeiAndDay/<imei>/<year>-<month>-<day>
+
+Pøehled stavu celkového kreditu všech uživatelù v urèitý den (o pùlnoci).
+GET api/UserConsViews/GetAtDay/<year>-<month>-<day>
+
+Pøehled stavu celkového kreditu uživatele v urèitý den (o pùlnoci).
+GET api/UserConsViews/GetForImeiAtDay/<imei>/<year>-<month>-<day>
+
+Pøehled stavu kreditu všech uživatelù, od posledního vyrovnání.
+GET api/UserConsViews/GetFromLastReset
+
+Pøehled stavu kreditu uživatele, od posledního vyrovnání.
+GET api/UserConsViews/GetForImeiFromLastReset/<imei>
