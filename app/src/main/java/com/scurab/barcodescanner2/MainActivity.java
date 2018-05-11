@@ -1,11 +1,11 @@
 package com.scurab.barcodescanner2;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,26 +16,22 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.scurab.barcodescanner2.base.RxLifecycleActivity;
 import com.scurab.barcodescanner2.forest.User;
 import com.scurab.barcodescanner2.forest.XsampleLahef;
-import com.scurab.barcodescanner2.forest.XsampleLahefResponse;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 import static retrofit2.converter.gson.GsonConverterFactory.create;
 
 /**
  * Created by jbruchanov on 05/04/2018.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends RxLifecycleActivity {
 
     //==============================================================================================
     //
@@ -55,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                     .build();
 
             Gson gson = new GsonBuilder()
-                    .setDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+                    .setDateFormat("yyyy-MM-ddTHH:mm:ss")
                     .create();
 
             Retrofit retrofit = new Retrofit.Builder()
@@ -76,23 +72,23 @@ public class MainActivity extends AppCompatActivity {
         l.voltaaaz = 40;
         l.volume = 0.75;
 
-        final Call<XsampleLahefResponse> call = getApi().send(l);
+//        final Call<XsampleLahefResponse> call = getApi().send(l);
         //tohle je nejjednodussi,
         //pokud bys potreboval nejak retezit "pekne" a nebo delat neco slozitejsiho
         //tak na to je pak dalsi pekna libka...
-        call.enqueue(new Callback<XsampleLahefResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<XsampleLahefResponse> call, @NonNull Response<XsampleLahefResponse> response) {
-                if (mIsResumed) {
-                    //potreba bejt jistej, ze appka bezi, jinak delas neco na "pozadi" a nemusi to fachat
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<XsampleLahefResponse> call, @NonNull Throwable t) {
-                t.printStackTrace();
-            }
-        });
+//        call.enqueue(new Callback<XsampleLahefResponse>() {
+//            @Override
+//            public void onResponse(@NonNull Call<XsampleLahefResponse> call, @NonNull Response<XsampleLahefResponse> response) {
+//                if (mIsResumed) {
+//                    //potreba bejt jistej, ze appka bezi, jinak delas neco na "pozadi" a nemusi to fachat
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NonNull Call<XsampleLahefResponse> call, @NonNull Throwable t) {
+//                t.printStackTrace();
+//            }
+//        });
     }
 
     //==============================================================================================
@@ -107,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
     private String idStr; //idce
 
 
+    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -136,17 +133,17 @@ public class MainActivity extends AppCompatActivity {
         idStr = Utils.getHwId(this); //vyrobime textovou identifikaci stroje
         id = Utils.str2id(idStr); //spachame identifikator
 
-        getApi().getUsers().enqueue(new Callback<User[]>() {
-            @Override
-            public void onResponse(Call<User[]> call, Response<User[]> response) {
-                final User[] users = response.body();
-            }
-
-            @Override
-            public void onFailure(Call<User[]> call, Throwable t) {
-
-            }
-        });
+        getApi().getUsers()
+                .compose(bindToLifecycle())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(users -> {
+                    for (User user : users) {
+                        Log.d("Activity", "user:" + user.UserName);
+                    }
+                }, err -> {
+                    err.printStackTrace();
+                });
     }
 
     private void startScan() {
