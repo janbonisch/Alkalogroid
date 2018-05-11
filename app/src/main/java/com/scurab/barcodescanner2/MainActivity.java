@@ -25,6 +25,7 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import static retrofit2.converter.gson.GsonConverterFactory.create;
 
@@ -42,7 +43,7 @@ public class MainActivity extends RxLifecycleActivity {
     private RestApi mRestApi;
 
     private RestApi getApi() {
-        if (mRestApi == null) {
+         if (mRestApi == null) {
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -51,13 +52,14 @@ public class MainActivity extends RxLifecycleActivity {
                     .build();
 
             Gson gson = new GsonBuilder()
-                    .setDateFormat("yyyy-MM-ddTHH:mm:ss")
+                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
                     .create();
 
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl("https://nela.zpa.cz:8016/")
                     .client(client)
                     .addConverterFactory(create(gson))
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .build();
 
             mRestApi = retrofit.create(RestApi.class);

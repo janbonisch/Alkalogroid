@@ -1,7 +1,6 @@
 package com.scurab.barcodescanner2.base;
 
 
-import android.arch.lifecycle.Lifecycle;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.CheckResult;
