@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.scurab.barcodescanner2.forest.User;
 import com.scurab.barcodescanner2.forest.XsampleLahef;
 import com.scurab.barcodescanner2.forest.XsampleLahefResponse;
 
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                     .create();
 
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://www.mujwebik.cz/")
+                    .baseUrl("https://nela.zpa.cz:8016/")
                     .client(client)
                     .addConverterFactory(create(gson))
                     .build();
@@ -134,6 +135,18 @@ public class MainActivity extends AppCompatActivity {
 
         idStr = Utils.getHwId(this); //vyrobime textovou identifikaci stroje
         id = Utils.str2id(idStr); //spachame identifikator
+
+        getApi().getUsers().enqueue(new Callback<User[]>() {
+            @Override
+            public void onResponse(Call<User[]> call, Response<User[]> response) {
+                final User[] users = response.body();
+            }
+
+            @Override
+            public void onFailure(Call<User[]> call, Throwable t) {
+
+            }
+        });
     }
 
     private void startScan() {
