@@ -2,4 +2,8 @@
     <string name="app_name">Alkalogroid</string>
     <string name="scan">Scan</string>
     <string name="settings">Settings</string>
+    <string name="title_activity_setup">Setup</string>
+    <string name="apply">Apply</string>
+    <string name="connection_string">Connection string</string>
+    <string name="canceled">Canceled</string>
 </resources>

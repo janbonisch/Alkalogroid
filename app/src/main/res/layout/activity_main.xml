@@ -14,11 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <TextView
-        android:id="@+id/result"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
     <ImageButton
         android:id="@+id/drink"
         android:layout_width="match_parent"
@@ -29,17 +24,9 @@
         app:srcCompat="@drawable/wine_glass_512" />
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/fork"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/fork_64" />
-
-    <Button
-        android:id="@+id/scan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:lineSpacingExtra="18sp"
-        android:visibility="gone"
-        android:text="@string/scan" />
 
 </LinearLayout>
