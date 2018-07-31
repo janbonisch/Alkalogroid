@@ -1,17 +1,14 @@
 package com.scurab.barcodescanner2;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -21,11 +18,7 @@ import com.google.zxing.integration.android.IntentResult;
 import com.scurab.barcodescanner2.base.RxLifecycleActivity;
 import com.scurab.barcodescanner2.forest.Consd;
 import com.scurab.barcodescanner2.forest.Consf;
-import com.scurab.barcodescanner2.forest.User;
-import com.scurab.barcodescanner2.forest.XsampleLahef;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -148,8 +141,12 @@ public class MainActivity extends RxLifecycleActivity {
         doCommunication(c, null); //TODO: vysledek nas asi nezajima
     }
 
+    private void showResult(RxLifecycleActivity who, String msg) {
+        Toast.makeText(who, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
+    }
+
     //provedeni akce podle ciselneho kodu
-    private String barcodeAction(int code) {
+    private void barcodeAction(RxLifecycleActivity who, int code) {
         try {
             switch (code) { //kody mohou mit ruzny vyznam
                 case ID_FOOD: //extra kod pro jidlo
@@ -159,19 +156,19 @@ public class MainActivity extends RxLifecycleActivity {
                     logItemConsumption(code, 1);
                     break;
             }
+            showResult(who,"OK"); //zobrazim chybu
         } catch (Exception e) { //pokud se vyskytl nejakej problem
-            return e.getLocalizedMessage(); //tak to vratim jako text pro zobrazeni uzivateli
+            showResult(who,e.getLocalizedMessage()); //zobrazim chybu
         }
-        return "OK";
     }
 
     //procedeni akce podle kodu v textove podobe
-    private String barcodeAction(String code) {
-        if (code == null) return "Canceled"; //pokud neni vubec nic, tak slus nahned
+    private void barcodeAction(RxLifecycleActivity who, String code) {
+        if (code == null) showResult(who,"Canceled"); //pokud neni vubec nic, tak slus nahned
         try {
-            return barcodeAction(Integer.decode(code)); //zkusim z toho udelat numero
+            barcodeAction(who,Integer.decode(code)); //zkusim z toho udelat numero
         } catch (Exception e) {
-            return ("Bad code format " + code);
+            showResult(who,"Bad code format " + code); //zobrazim chybu
         }
     }
 
@@ -185,16 +182,13 @@ public class MainActivity extends RxLifecycleActivity {
     private byte[] id; //idecko jako pole bajtu
     private String idStr; //idce
 
-
     @SuppressLint("CheckResult")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         RxLifecycleActivity toJsemJa = this;
 
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
@@ -219,8 +213,7 @@ public class MainActivity extends RxLifecycleActivity {
         findViewById(R.id.fork).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String msg = barcodeAction(ID_FOOD); //jako bychom naskenovali kod pro jedno jidlo
-                Toast.makeText(toJsemJa, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
+                barcodeAction(toJsemJa, ID_FOOD); //jako bychom naskenovali kod pro jedno jidlo
             }
 
         });
@@ -245,8 +238,7 @@ public class MainActivity extends RxLifecycleActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) { //pokud je to nejakej vysledek
-            String msg = barcodeAction(result.getContents()); //zpracujeme prijaty kod
-            Toast.makeText(this, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
+            barcodeAction(this, result.getContents()); //zpracujeme prijaty kod
         } else { //co to sem leze za hovadiny
             super.onActivityResult(requestCode, resultCode, data); //hodime to dal a poptakach
         }
