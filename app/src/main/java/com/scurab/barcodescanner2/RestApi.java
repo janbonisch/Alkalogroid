@@ -8,17 +8,18 @@ import com.scurab.barcodescanner2.forest.XsampleLahef;
 import com.scurab.barcodescanner2.forest.XsampleLahefResponse;
 
 import io.reactivex.Observable;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 public interface RestApi {
 
     @POST("api/ItemdTypes")
-    Observable<XsampleLahefResponse> send(XsampleLahef lahef);
+    Observable<XsampleLahefResponse> send(@Body XsampleLahef lahef);
 
     @GET("Items/api/Users")
     Observable<User[]> getUsers();
 
     @POST("api/Consds")
-    Observable<Empty> sendConsf(Consf consf);
+    Observable<Empty> sendConsf(@Body Consf consf);
 }
