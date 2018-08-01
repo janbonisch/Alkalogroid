@@ -1,15 +1,19 @@
 package com.scurab.barcodescanner2.forest;
 
-import com.google.gson.annotations.SerializedName;
+import java.sql.Date;
 
 // Konzumace sklenek
 public class Consd {
-    // key, auto-generated
+    // key, auto-generated (read-only)
     public int ConsdID;
     // required, reference to Itemd
     public int ItemdID;
     // required, length = 100
     public String Imei;
-    // required
-    public double Amount;
+    // read-only, reference to User
+    public String Username;
+    // pokud neni zadana, tak 0.2
+    public Double Amount;
+    // read-only
+    public Date DtCons;
 }

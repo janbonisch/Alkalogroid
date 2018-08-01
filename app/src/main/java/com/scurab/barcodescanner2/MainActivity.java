@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -16,18 +15,10 @@ import com.google.gson.GsonBuilder;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.scurab.barcodescanner2.base.RxLifecycleActivity;
-import com.scurab.barcodescanner2.forest.Consd;
-import com.scurab.barcodescanner2.forest.Consf;
+import com.scurab.barcodescanner2.forest.Consfs;
+import com.scurab.barcodescanner2.forest.User;
 
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.ObservableTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -35,12 +26,20 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import static retrofit2.converter.gson.GsonConverterFactory.create;
-
-/**
- * Created by jbruchanov on 05/04/2018.
- */
+\
 public class MainActivity extends RxLifecycleActivity {
 
+    private String imei;
+
+    private String getImei() {
+        if (imei ==null) { //lina inicializace
+            String idStr = Utils.getHwId(this); //vyrobime textovou identifikaci stroje
+            byte[] id = Utils.str2id(idStr); //spachame identifikator
+            imei =Utils.viewID(id,(char)0); //a udelam z toho retezec
+            Utils.log("getImei","My IMEI "+imei);
+        }
+        return imei;
+    }
 
     //==============================================================================================
     //
@@ -48,150 +47,107 @@ public class MainActivity extends RxLifecycleActivity {
     //
     //
 
-    private RestApi mRestApi;
-    private View progressBarContainer;
+    private RestApi restApi;
 
-    private RestApi getApi() {
-        if (mRestApi == null) {
+    private RestApi getRestApi() {
+        if (restApi == null) { //lina inicializace
             SharedPreferences prefs = getSharedPreferences(SetupActivity.PREFS_NAME, SetupActivity.PREFS_MODE); //zrobim preference
-
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(loggingInterceptor)
                     .build();
-
             Gson gson = new GsonBuilder()
                     .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
                     .create();
-
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(SetupActivity.getConStr(prefs))
+                    .baseUrl(SetupActivity.getServiceUrl(prefs))
                     .client(client)
                     .addConverterFactory(create(gson))
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .build();
-
-            mRestApi = retrofit.create(RestApi.class);
+            restApi = retrofit.create(RestApi.class);
         }
-        return mRestApi;
-    }
-
-        /*
-
-    public void sendRestCall() {
-        XsampleLahef l = new XsampleLahef();
-        l.name = "Kontusovka";
-        l.year = 1920;
-        l.voltaaaz = 40;
-        l.volume = 0.75;
-
-        final Call<XsampleLahefResponse> call = getApi().send(l);
-        //tohle je nejjednodussi,
-        //pokud bys potreboval nejak retezit "pekne" a nebo delat neco slozitejsiho
-        //tak na to je pak dalsi pekna libka...
-        call.enqueue(new Callback<XsampleLahefResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<XsampleLahefResponse> call, @NonNull Response<XsampleLahefResponse> response) {
-                if (mIsResumed) {
-                    //potreba bejt jistej, ze appka bezi, jinak delas neco na "pozadi" a nemusi to fachat
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<XsampleLahefResponse> call, @NonNull Throwable t) {
-                t.printStackTrace();
-            }
-        });
-
-
-        getApi().getUsers()
-                .compose(bindToLifecycle())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(users -> {
-                    for (User user : users) {
-                        Log.d("Activity", "user:" + user.Username);
-                    }
-                }, err -> {
-                    err.printStackTrace();
-                });
-        */
-
-    //==============================================================================================
-    //
-    // Zpracovani prijateho kodu
-    //
-    //
-
-    private static final int ID_FOOD = 0xFFFFFFFE; //extra kod pro jidlo
-
-    private void doCommunication(Object send, Object response) throws Exception {
-        //TODO: nejako posle send
-        //TODO: odpoved zkusi narvat do response. Pokud je response==null, tak me to nezajima
-        //TODO: muze to vyhodit vyjimku, bude odchycena a zobrazena
+        return restApi;
     }
 
     //zaznam jidla
     private void logConsf() {
-        Consf c = new Consf();
-        c.Imei = this.idStr; //kdo
-        c.ItemfID = 0; //TODO: nevim co to je, takze radeji nula
-        c.ConsfID = 0; //TODO: nevim co to je, takze radeji nula
-//        doCommunication(c, null); //TODO: vysledek nas asi nezajima
-        getApi()
-                .sendConsf(c)
-                .compose(bindToLifecycle())
-                .compose(bindToProgressBar(progressBarContainer))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+        Consfs c = new Consfs();
+        c.Imei = getImei(); //kdo jsem
+        getRestApi().consfs(c)  //
+                .compose(bindToLifecycle()) // tohle to svaze s cyklem activity na android, takze kdyz appku zavres behem tohohle dotazu, tak to vicemene zahodi
+                .compose(bindToProgressBar(progressBarContainer))   //aktivace progressbaru
+                .subscribeOn(Schedulers.io()) //tohle zase ze ty nasledujici callback funkce se maj zavolat v main thready, abys mohl hrabat do UI (pac android te nenecha pracovat s UI v nejakym jinym thread)
+                .observeOn(AndroidSchedulers.mainThread()) //spusti se diskoteka a davas tomu 2 funkce, jedna ktera se zavola, kdyz mas vysledek a druha pro pripad problemu
                 .subscribe(r -> {
-                    //hotovo
-                    Toast.makeText(MainActivity.this, "Hotofo", Toast.LENGTH_LONG).show();
+                    showOk(); //hotovo
                 }, err -> {
-                    err.printStackTrace();
+                    showError(err);
                 });
     }
 
-    //zaznam sklenky
-    private void logItemConsumption(int itemId, int amount) throws Exception {
-        Consd c = new Consd(); //vyrobim si tridu, do ktery to naladuju
-        c.Imei = this.idStr; //kdo
-        c.ItemdID = (int) itemId; //co
-        c.Amount = amount; //kolik
-        c.ConsdID = 0; //TODO: nevim co to je, takze radeji nula
-        doCommunication(c, null); //TODO: vysledek nas asi nezajima
+    private User[] users;
+    private User[] getUsers() {
+        if (users==null) {
+            getRestApi().getUsers()
+                    .compose(bindToLifecycle())
+                    .compose(bindToProgressBar(progressBarContainer))
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(users -> {
+                        this.users = users;
+                    }, err -> {
+                        showError(err);
+                    });
+        }
+        return users;
     }
 
-    private void showResult(RxLifecycleActivity who, String msg) {
-        Toast.makeText(who, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
+    //zaznam sklenky
+    private void logGlass(int itemId) throws Exception {
     }
+
+    //==============================================================================================
+    //
+    // Zpracovani caroveho kodu a dalsich prikazu
+    //
+    //
+
+    private static final int ID_FOOD = 0xFFFFFFFE; //extra kod pro jidlo
+    private static final int ID_WINE_BOTTLE_START= 0x00000000; //pocatek kodu pro flasky vina
+    private static final int ID_WINE_BOTTLE_END= 0x0000FFFF; //konec kodu pro flasky vina
 
     //provedeni akce podle ciselneho kodu
-    private void barcodeAction(RxLifecycleActivity who, int code) {
+    private void barcodeAction(int code) {
         try {
             switch (code) { //kody mohou mit ruzny vyznam
                 case ID_FOOD: //extra kod pro jidlo
                     logConsf(); //loguj jidlo
-                    break; //a slus
+                    return; //a slus
                 default: //ostatni kody jsou jeden kus sklenice
-                    logItemConsumption(code, 1);
-                    break;
+                    if ((code>=ID_WINE_BOTTLE_START)&&(code<=ID_WINE_BOTTLE_END)) {
+                        logGlass(code);
+                        return;
+                    }
+                    showError(String.format(getResources().getString(R.string.barcode_unknown_number),code)); //zobrazim chybu
+                    return;
             }
-            showResult(who,"OK"); //zobrazim chybu
         } catch (Exception e) { //pokud se vyskytl nejakej problem
-            showResult(who,e.getLocalizedMessage()); //zobrazim chybu
+            showError(e); //zobrazim chybu
         }
     }
 
     //procedeni akce podle kodu v textove podobe
-    private void barcodeAction(RxLifecycleActivity who, String code) {
-        if (code == null) showResult(who,"Canceled"); //pokud neni vubec nic, tak slus nahned
+    private void barcodeAction(String code) {
+        if (code == null) { //neni nic
+            showError(getResources().getString(R.string.canceled)); //pokud neni vubec nic, tak slus nahned
+            return; //slus
+        }
         try {
-            barcodeAction(who,Integer.decode(code)); //zkusim z toho udelat numero
-        } catch (Exception e) {
-            showResult(who,"Bad code format " + code); //zobrazim chybu
+            barcodeAction(Integer.decode(code)); //zkusim z toho udelat numero a podle toho akce
+        } catch (Exception e) { //pokud doslo k nejakemu problemu, tak hlasim, problem vznikne jen pri chybe dekodovani cisla
+            showError(String.format(getResources().getString(R.string.barcode_bad_format),code)); //zobrazim chybu
         }
     }
 
@@ -201,9 +157,24 @@ public class MainActivity extends RxLifecycleActivity {
     //
     //
 
-    private boolean mIsResumed;
-    private byte[] id; //idecko jako pole bajtu
-    private String idStr; //idce
+    private View progressBarContainer;
+
+    private void showOk(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
+    }
+
+    private void showOk() {
+        showOk(getResources().getString(R.string.ok)); //reknu ze dobry
+    }
+
+    private void showError(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
+    }
+
+    private void showError(Throwable err) {
+        showError(err.getLocalizedMessage());
+        err.printStackTrace();
+    }
 
     @SuppressLint("CheckResult")
     @Override
@@ -211,46 +182,26 @@ public class MainActivity extends RxLifecycleActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         progressBarContainer = findViewById(R.id.progress_bar_container);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        RxLifecycleActivity toJsemJa = this;
-
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.settings) { //pokud je to klikanec na menu setting
-                    mRestApi = null; //zahodime referenci na rest, bo to muze konfigurace zmenit, tak aby se to vyrobilo znova
-                    startActivity(new Intent(toJsemJa, SetupActivity.class)); //a startujeme aktivitu s nastavenima
-                    return true; //nevim proc, asi ze jsem to zachytil
-                }
-                return false; //nevim proc, asi ze udalost nebyla zpracovana
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.settings) { //pokud je to klikanec na menu setting
+                restApi = null; //zahodime referenci na rest, bo to muze konfigurace zmenit, tak aby se to vyrobilo znova
+                startActivity(new Intent(this, SetupActivity.class)); //a startujeme aktivitu s nastavenima
+                return true; //nevim proc, asi ze jsem to zachytil
             }
+            return false; //nevim proc, asi ze udalost nebyla zpracovana
         });
-
-        findViewById(R.id.drink).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startScan();
-            }
+        findViewById(R.id.drink).setOnClickListener(v -> startScan());
+        findViewById(R.id.fork).setOnClickListener(v -> {
+            barcodeAction(ID_FOOD); //jako bychom naskenovali kod pro jedno jidlo
         });
-
-        findViewById(R.id.fork).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                barcodeAction(toJsemJa, ID_FOOD); //jako bychom naskenovali kod pro jedno jidlo
-            }
-
-        });
-
-        idStr = Utils.getHwId(this); //vyrobime textovou identifikaci stroje
-        id = Utils.str2id(idStr); //spachame identifikator
     }
 
     private void startScan() {
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setPrompt("Scan a barcode");
+        integrator.setPrompt(getString(R.string.barcode_scan));
         integrator.setCameraId(0);  // Use a specific camera of the device
         integrator.setBeepEnabled(false);
         integrator.setBarcodeImageEnabled(true);
@@ -263,22 +214,10 @@ public class MainActivity extends RxLifecycleActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) { //pokud je to nejakej vysledek
-            barcodeAction(this, result.getContents()); //zpracujeme prijaty kod
+            barcodeAction(result.getContents()); //zpracujeme prijaty kod
         } else { //co to sem leze za hovadiny
             super.onActivityResult(requestCode, resultCode, data); //hodime to dal a poptakach
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mIsResumed = true;
-    }
-
-    @Override
-    protected void onPause() {
-        mIsResumed = false;
-        super.onPause();
     }
 
     @Override

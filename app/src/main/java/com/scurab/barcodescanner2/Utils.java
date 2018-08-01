@@ -18,6 +18,12 @@ public class Utils {
     // Staticke uzitecnosti
 
 
+    public static void sleep(int milis) {
+        try {
+            Thread.sleep(milis);
+        } catch (Exception e) {
+        }
+    }
 
     private static final String MESSAGE_DIGEST_ALGORITHM = "SHA-256"; //hasovaci algoritmus
 
