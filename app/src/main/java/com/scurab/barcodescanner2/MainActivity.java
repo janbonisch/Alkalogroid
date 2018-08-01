@@ -19,6 +19,15 @@ import com.scurab.barcodescanner2.base.RxLifecycleActivity;
 import com.scurab.barcodescanner2.forest.Consd;
 import com.scurab.barcodescanner2.forest.Consf;
 
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -39,6 +48,7 @@ public class MainActivity extends RxLifecycleActivity {
     //
 
     private RestApi mRestApi;
+    private View progressBarContainer;
 
     private RestApi getApi() {
         if (mRestApi == null) {
@@ -123,12 +133,23 @@ public class MainActivity extends RxLifecycleActivity {
     }
 
     //zaznam jidla
-    private void logConsf() throws Exception {
+    private void logConsf() {
         Consf c = new Consf();
         c.Imei = this.idStr; //kdo
         c.ItemfID = 0; //TODO: nevim co to je, takze radeji nula
         c.ConsfID = 0; //TODO: nevim co to je, takze radeji nula
-        doCommunication(c, null); //TODO: vysledek nas asi nezajima
+//        doCommunication(c, null); //TODO: vysledek nas asi nezajima
+        getApi()
+                .sendConsf(c)
+                .compose(bindToLifecycle())
+                .compose(bindToProgressBar(progressBarContainer))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(r -> {
+                    //hotovo
+                    Toast.makeText(MainActivity.this, "Hotofo", Toast.LENGTH_LONG).show();
+                }, err -> {
+                    err.printStackTrace();
+                });
     }
 
     //zaznam sklenky
@@ -187,6 +208,8 @@ public class MainActivity extends RxLifecycleActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        progressBarContainer = findViewById(R.id.progress_bar_container);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         RxLifecycleActivity toJsemJa = this;

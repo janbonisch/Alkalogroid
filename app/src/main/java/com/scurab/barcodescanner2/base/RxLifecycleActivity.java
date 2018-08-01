@@ -7,6 +7,7 @@ import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.trello.rxlifecycle2.LifecycleTransformer;
@@ -15,6 +16,7 @@ import com.trello.rxlifecycle2.android.ActivityEvent;
 import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableTransformer;
 import io.reactivex.subjects.BehaviorSubject;
 
 public class RxLifecycleActivity extends AppCompatActivity implements LifecycleProvider<ActivityEvent> {
@@ -83,4 +85,11 @@ public class RxLifecycleActivity extends AppCompatActivity implements LifecycleP
         super.onDestroy();
     }
 
+    protected <T> ObservableTransformer<T, T> bindToProgressBar(final View progresBar) {
+        return upstream -> upstream
+                .doOnSubscribe(d -> progresBar.setVisibility(View.VISIBLE))
+                .doAfterTerminate(() -> {
+                    progresBar.post(() -> progresBar.setVisibility(View.GONE));
+                });
+    }
 }
