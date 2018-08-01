@@ -1,32 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:background="@color/colorPrimary"
-        app:titleTextColor="@color/white"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".MainActivity">
 
-    <ImageButton
-        android:id="@+id/drink"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            app:titleTextColor="@color/white" />
+
+        <ImageButton
+            android:id="@+id/drink"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="false"
+            android:cropToPadding="true"
+            app:srcCompat="@drawable/wine_glass_512" />
+
+        <ImageButton
+            android:id="@+id/fork"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/fork_64" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/progress_bar_container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:adjustViewBounds="false"
-        android:cropToPadding="true"
-        app:srcCompat="@drawable/wine_glass_512" />
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:focusable="true">
 
-    <ImageButton
-        android:id="@+id/fork"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/fork_64" />
+        <ProgressBar
+            android:indeterminate="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
 
-</LinearLayout>
+    </FrameLayout>
+
+</FrameLayout>
