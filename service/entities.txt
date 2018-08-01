@@ -1,4 +1,4 @@
-// Uûivatel 
+// U≈æivatel 
 User
 {
   // key, required, length = 20
@@ -9,7 +9,7 @@ User
   DateTime? DtConsStart;
 }
 
-// Kredit uûivatele
+// Kredit u≈æivatele
 UserCredit
 {
   // key, auto-generated (read-only)
@@ -65,7 +65,7 @@ Itemd
   DateTime DtInsert;
 }
 
-// JÌdlo
+// J√≠dlo
 Itemf
 {
   // key, auto-generated (read-only)
@@ -95,7 +95,7 @@ Consd
   DateTime DtCons;
 }
 
-// Konzumace jÌdla
+// Konzumace j√≠dla
 Consf
 {
   // key, auto-generated (read-only)
@@ -110,14 +110,14 @@ Consf
   DateTime DtCons;
 }
 
-// Lahev - p¯ehled
+// Naskladnƒõn√© lahve - p≈ôehled
 ItemdView
 {
   // key
   int ItemdID;
-  // roËnÌk
+  // roƒçn√≠k
   short Year;
-  // Odr˘da
+  // Odr≈Øda
   string Name;
   // Popis
   string Description;
@@ -127,13 +127,13 @@ ItemdView
   double PercentVol;
   // cena
   int Price;
-  // datum naskladnÏnÌ
+  // datum naskladnƒõn√≠
   DateTime DtInsert;
   // naskladnil
   string Username;
-  // naskladnil - jmÈno
+  // naskladnil - jm√©no
   string DisplayName;
-  // zkonzumovan· Ë·st
+  // zkonzumovan√° ƒç√°st
   double ConsAmount;
   // start konzumace
   DateTime? DtConsStart;
@@ -141,31 +141,31 @@ ItemdView
   DateTime? DtConsEnd;
 }
 
-// JÌdlo - p¯ehled
+// Naskladnƒõn√© j√≠dlo - p≈ôehled
 ItemfView
 {
   // key
   int ItemfID;
   // naskladnil
   string Username;
-  // naskladnil - jmÈno
+  // naskladnil - jm√©no
   string DisplayName;
   // cena
   decimal Price;
   // datum naskladneni
   DateTime DtInsert;
-  // poËet konzumujÌcÌch
+  // poƒçet konzumuj√≠c√≠ch
   int Consumers;
 }
 
-// Sklenka - p¯ehled
+// Zkonzumovan√© pit√≠ - p≈ôehled
 ConsdView
 {
   // key
   int ConsdID;
-  // roËnÌk
+  // roƒçn√≠k
   short Year;
-  // Odr˘da
+  // Odr≈Øda
   string Name;
   // Popis
   string Description;
@@ -177,46 +177,84 @@ ConsdView
   decimal ConsPrice
   // konzument
   string Username;
-  // Zkonzumov·no kdy
+  // Zkonzumov√°no kdy
   DateTime DtCons
 }
 
-// JÌdlo - p¯ehled
+// Zkonzumovan√© j√≠dlo - p≈ôehled
 ConsfView
 {
   // key
   int ConsfID;
-  // zkonzumovan· Ë·st
+  // zkonzumovan√° ƒç√°st
   double ConsAmount;
   // cena
   decimal ConsPrice;
   // konzument
   string Username;
-  // Zkonzumov·no kdy
+  // Zkonzumov√°no kdy
   DateTime DtCons;
 }
 
-// Kredit - p¯ehled
+// Kredit u≈æivatele - p≈ôehled
+UserCreditView
+{
+  // user
+  string Username;
+  // user - jm√©no
+  string DisplayName;
+  // user - vlo≈æeno
+  decimal Credit;
+  // lahv√≠ koupeno
+  int ConsdIn;
+  // lahv√≠ zkonzumov√°no
+  double ConsdOut;
+  // cena za koupen√© lahve
+  decimal PricedIn;
+  // cena za zkonzumovan√© lahve
+  decimal PricedOut;
+  // cena za koupen√© j√≠dlo
+  decimal PrcefIn;
+  // cena za zkonzumovan√© j√≠dlo
+  decimal PricefOut;
+  // bilance
+  decimal CreditTotal;
+}
+
+// Konzumace u≈æivatele - p≈ôehled
 UserConsView
 {
   // user
   string Username;
-  // user - jmÈno
+  // user - jm√©no
   string DisplayName;
-  // user - vloûeno
-  decimal Credit;
-  // lahvÌ koupeno
-  int ConsdIn;
-  // lahvÌ zkonzumov·no
+  // lahv√≠ zkonzumov√°no
   double ConsdOut;
-  // cena za koupenÈ lahve
-  decimal PricedIn;
-  // cena za zkonzumovanÈ lahve
+  // cena za zkonzumovan√© lahve
   decimal PricedOut;
-  // cena za koupenÈ jÌdlo
-  decimal PrcefIn;
-  // cena za zkonzumovanÈ jÌdlo
+  // cena za zkonzumovan√© j√≠dlo
   decimal PricefOut;
-  // bilance
-  decimal CreditTotal;
+  // sklenicek
+  double ConsDefault;
+  // piv 10 - 0.5l - 4%
+  double ConsB10;
+  // piv 12 - 0.5l - 5%
+  double ConsB12;
+  // vin - 0.2l - 12%
+  double ConsW12;
+  // lih - 0.04l - 40%
+  double ConsS40;
+}
+
+// check lahv√≠
+ConsdCheckView
+{
+  // cel√Ωch lahv√≠ naƒçato celkem
+  double ItemdSum;
+  // lahv√≠ zkonzumov√°no celkem
+  double ConsdSum;
+  // sklenic zkonzumov√°no celkem
+  double ConsDefault;
+  // rozd√≠l
+  double DiffDefault
 }

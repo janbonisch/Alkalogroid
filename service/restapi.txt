@@ -1,108 +1,181 @@
-Seznam oprávnìnıch uzivatelu. Pouito pøi registraci mobilu, naskladòování, pøidání kreditu.
+NÃ¡vratovÃ© hodnoty
+-----------------
+
+GET:
+200 - OK + content obsahuje poÅ¾adovanÃ¡ data
+
+POST:
+201 - Created + content obsahuje vytvoÅ™enou entitu
+400 - Bad request  + content obsahuje popis chyby
+- chybnÄ› zadanÃ© parametry entity nebo databÃ¡zovÃ¡ chyba
+
+PUT:
+200 - OK + content obsahuje zmÄ›nÄ›nou entitu
+400 - Bad request + contenet obsahuje popis chyby
+- chybnÄ› zadanÃ© parametry entity nebo databÃ¡zovÃ¡ chyba
+404 - Not found + no content
+- entita nebyla v databÃ¡zi nalezena
+
+DELETE:
+204 - no content
+400 - Bad request + contenet obsahuje popis chyby
+- databÃ¡zovÃ¡ chyba
+404 - Not found + no content
+- entita nebyla v databÃ¡zi nalezena
+
+
+Metody
+------
+
+Seznam oprÃ¡vnÄ›nÃ½ch uzivatelu. PouÅ¾ito pÅ™i registraci mobilu, naskladÅˆovÃ¡nÃ­, pÅ™idÃ¡nÃ­ kreditu.
 GET api/Users
+returns: array of User
 
-Novı uivatel
+NovÃ½ uÅ¾ivatel
 POST api/Users
-{"Username":"meca","DisplayName":"Meca Martin"}
+returns: User
 
-Zmìna zobrazovaného jména
+ZmÄ›na zobrazovanÃ©ho jmÃ©na
 PUT api/users/<username>
 {"Username":"meca","DisplayName":"Meca Martin"}
+returns: User
 
-Reset zaèátku konzumace.
+Reset zaÄÃ¡tku konzumace.
 PUT api/users/ResetConsStart/<username>
+returns: User
 
-Smazání uivatele
+SmazÃ¡nÃ­ uÅ¾ivatele
 DELETE api/Users/<username>
+returns: no content
 
-Vloení kreditu uivatele
+VloÅ¾enÃ­ kreditu uÅ¾ivatele
 POST api/UserCredits
 {"Username":"meca","Credit":100}
+returns: UserCredit
 
-Omyl pøi vloení kreditu
+Omyl pÅ™i vloÅ¾enÃ­ kreditu
 DELETE api/UserCredits/<id>
+returns: no content
 
-Pøehled vkládání kreditu uivatele v zadaném roce
+PÅ™ehled vklÃ¡dÃ¡nÃ­ kreditu uÅ¾ivatele v zadanÃ©m roce
 GET api/UserCredits/GetForUserAndYear/<username>/<year>
+returns: array of UserCredit
 
-Registrace mobilu uivatele:
+Registrace mobilu uÅ¾ivatele:
 POST api/UserDevices
 {"Imei":"test1","Username":"meca"}
+returns: UserDevice
 
-Odregistrace mobilu uivatele:
+Odregistrace mobilu uÅ¾ivatele:
 DELETE api/UserDevices/<imei>
+returns: no contenet
 
-Novı druh lahve pøi naskladòování.
+NovÃ½ druh lahve pÅ™i naskladÅˆovÃ¡nÃ­.
 POST api/ItemdTypes
-{"Year":"2016","Name":"Svatovavøinecké","Price":"120","Volume":"0.75","PercentVol":"13"}
+{"Year":"2016","Name":"SvatovavÅ™ineckÃ©","Price":"120","Volume":"0.75","PercentVol":"13"}
+returns: ItemdType
 
-Smazání druhu lahve. Pøi chybném zaloení druhu lahve pøi naskladòování.
+SmazÃ¡nÃ­ druhu lahve. PÅ™i chybnÃ©m zaloÅ¾enÃ­ druhu lahve pÅ™i naskladÅˆovÃ¡nÃ­.
 DELETE api/ItemdTypes/<id>
+returns: no content
 
-Zmìna druhu lahve. Mono mìnit pøi naskladòování.
+ZmÄ›na druhu lahve. MoÅ¾no mÄ›nit pÅ™i naskladÅˆovÃ¡nÃ­.
 PUT api/ItemdTypes/<id>
-{"ItemdTypeID":1,"Year":2016,"Name":"Svatovavøinecké","Price":120,"Volume":0.75,"PercentVol":13}
+{"ItemdTypeID":1,"Year":2016,"Name":"SvatovavÅ™ineckÃ©","Price":120,"Volume":0.75,"PercentVol":13}
+returns: ItemdType
 
-Seznam druhù lahví pro vybranı roèník. Pouito pøi naskladòování.
+Seznam druhÅ¯ lahvÃ­ pro vybranÃ½ roÄnÃ­k. PouÅ¾ito pÅ™i naskladÅˆovÃ¡nÃ­.
 GET api/ItemdTypes/GetForYear/<year>
+returns: array of ItemdType
 
-Naskladnìní lahve.
+NaskladnÄ›nÃ­ lahve.
 POST api/Itemds
 {"ItemdID":1,"ItemdTypeID":1,"Username":"meca"}
+returns: Itemd
 
-Omyl pøi naskladnìní lahve.
+Omyl pÅ™i naskladnÄ›nÃ­ lahve.
 DELETE api/Itemds/<id>
+returns: no contenet
 
-Naskladnìní jídla.
+NaskladnÄ›nÃ­ jÃ­dla.
 POST api/Itemfs
 {"Username":"meca","Price":105.6}
+returns: Itemf
 
-Omyl pøi naskladnìní jídla.
+Omyl pÅ™i naskladnÄ›nÃ­ jÃ­dla.
 DELETE api/Itemfs/<id>
+returns: no content
 
 Konzumace sklenky.
 POST api/Consds
 {"ItemdID":1,"Imei":"test"}
+returns: Consd
 
-Omyl pøi konzumaci sklenky.
+Omyl pÅ™i konzumaci sklenky.
 DELETE api/Consds/<id>
+returns: no content
 
-Pøihlášení ke konzumaci jídla.
+PÅ™ihlÃ¡Å¡enÃ­ ke konzumaci jÃ­dla.
 POST api/Consfs
 {"ItemfID":1,"Imei":"test1"}
+returns: Consf
 
-Omyl pøi pøihlášení ke konzumaci jídla.
+Omyl pÅ™i pÅ™ihlÃ¡Å¡enÃ­ ke konzumaci jÃ­dla.
 DELETE api/Confs/<id>
+returns: no content
 
-Pøehled konzumace lahví naèatıch v zadanı den.
+PÅ™ehled konzumace lahvÃ­ naÄatÃ½ch v zadanÃ½ den.
 GET api/ItemdViews/GetForDay/<year>-<month>-<day>
+returns: array of ItemdView
 
-Pøehled nezkonzumovanıch lahví. Mono mazat.
+PÅ™ehled nezkonzumovanÃ½ch lahvÃ­. Ty je moÅ¾no mazat.
 GET api/ItemdViews/GetAvailable
+returns: array of ItemdView
 
-Pøehled konzumace lahví naskladnìnıch v urèitı den.
+PÅ™ehled konzumace lahvÃ­ naskladnÄ›nÃ½ch v urÄitÃ½ den.
 GET api/ItemdViews/GetForDayInserted/<year>-<month>-<day>
+returns: array of ItemdView
 
-Seznam jídla, u kterého nezaèala konzumace.
+Seznam jÃ­dla, u kterÃ©ho nezaÄala konzumace. To je moÅ¾nÃ© mazat.
 GET api/ItemfViews/GetAvailable
+returns: array of ItemfView
 
-Seznam naskladnìného jídla v urèitı den.
+Seznam naskladnÄ›nÃ©ho jÃ­dla v urÄitÃ½ den.
 GET api/ItemfViews/GetForDayInserted/<year>-<month>-<day>
+returns: array of ItemfView
 
-Pøehled konzumace pití uivatele za urèitı den.
+PÅ™ehled konzumace pitÃ­ uÅ¾ivatele za urÄitÃ½ den. Log vypitÃ½ch skleniÄek.
 GET api/ConsdViews/GetForImeiAndDay/<imei>/<year>-<month>-<day>
+returns: array of ConsdView
 
-Pøehled konzumace jídla uivatele za urèitı den.
+PÅ™ehled konzumace jÃ­dla uÅ¾ivatele za urÄitÃ½ den. SnÄ›zenÃ© jÃ­dlo.
 GET api/ConsfViews/GetForImeiAndDay/<imei>/<year>-<month>-<day>
+returns: array of ConsfView
 
-Pøehled stavu celkového kreditu všech uivatelù v urèitı den (o pùlnoci).
-GET api/UserConsViews/GetAtDay/<year>-<month>-<day>
+PÅ™ehled stavu celkovÃ©ho kreditu vÅ¡ech uÅ¾ivatelÅ¯ v urÄitÃ½ den (o pÅ¯lnoci).
+GET api/UserCreditViews/GetAtDay/<year>-<month>-<day>
+returns: array of UserCreditView
 
-Pøehled stavu celkového kreditu uivatele v urèitı den (o pùlnoci).
-GET api/UserConsViews/GetForImeiAtDay/<imei>/<year>-<month>-<day>
+PÅ™ehled stavu celkovÃ©ho kreditu uÅ¾ivatele v urÄitÃ½ den (o pÅ¯lnoci).
+GET api/UserCreditViews/GetForImeiAtDay/<imei>/<year>-<month>-<day>
+returns: array of UserCreditView
 
-Pøehled stavu kreditu všech uivatelù, od posledního vyrovnání.
-GET api/UserConsViews/GetFromLastReset
+PÅ™ehled stavu kreditu vÅ¡ech uÅ¾ivatelÅ¯, od poslednÃ­ho vyrovnÃ¡nÃ­.
+GET api/UserCreditViews/GetFromLastReset
+returns: array of UserCreditView
 
-Pøehled stavu kreditu uivatele, od posledního vyrovnání.
-GET api/UserConsViews/GetForImeiFromLastReset/<imei>
+PÅ™ehled stavu kreditu uÅ¾ivatele, od poslednÃ­ho vyrovnÃ¡nÃ­.
+GET api/UserCreditViews/GetForImeiFromLastReset/<imei>
+returns: array of UserCreditView
+
+PÅ™ehled konzumace vÅ¡ech uÅ¾ivatelÅ¯ v urÄitÃ½ den. JÃ­dlo i pitÃ­.
+GET api/UserConsViews/GetForDay/<year>-<month>-<day>
+returns: array of UserConsView
+
+PÅ™ehled konzumace uÅ¾ivatele v urÄitÃ½ den. JÃ­dlo i pitÃ­.
+GET api/UserConsViews/GetForImeiAndDay/<imei>/<year>-<month>-<day>
+returns: array of UserConsView
+
+Kontrola zaevidovÃ¡nÃ­ konzumace pitÃ­. Check.
+GET api/ConsdCheckViews
+returns ConsdCheckView
