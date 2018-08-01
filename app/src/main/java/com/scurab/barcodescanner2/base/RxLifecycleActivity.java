@@ -87,9 +87,7 @@ public class RxLifecycleActivity extends AppCompatActivity implements LifecycleP
 
     protected <T> ObservableTransformer<T, T> bindToProgressBar(final View progresBar) {
         return upstream -> upstream
-                .doOnSubscribe(d -> progresBar.setVisibility(View.VISIBLE))
-                .doAfterTerminate(() -> {
-                    progresBar.post(() -> progresBar.setVisibility(View.GONE));
-                });
+                .doOnSubscribe(d -> progresBar.post(() -> progresBar.setVisibility(View.VISIBLE)))
+                .doAfterTerminate(() -> progresBar.post(() -> progresBar.setVisibility(View.GONE)));
     }
 }
