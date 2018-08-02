@@ -15,17 +15,36 @@
         android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/result"
+        android:id="@+id/label1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/connection_string"/>
-
+        android:text="@string/service_url"/>
     <EditText
         android:id="@+id/connection_string"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text"/>
+    <TextView
+        android:id="@+id/label12"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/barcode_timeout"/>
 
+    <EditText
+        android:id="@+id/barcode_timeout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"/>
+    <TextView
+        android:id="@+id/label13"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/camera_number"/>
+    <EditText
+        android:id="@+id/camera_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"/>
     <Button
         android:id="@+id/apply"
         android:layout_width="match_parent"
@@ -33,14 +52,11 @@
         android:layout_gravity="end"
         android:lineSpacingExtra="18sp"
         android:text="@string/apply" />
-
-
-    <!-- <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/register"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" /> -->
-
+        android:layout_gravity="end"
+        android:lineSpacingExtra="18sp"
+        android:text="@string/register" />
 </LinearLayout>

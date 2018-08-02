@@ -1,11 +1,11 @@
 package com.scurab.barcodescanner2;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -18,16 +18,33 @@ public class SetupActivity extends AppCompatActivity {
     //
     //
 
-    public static String PREFS_NAME="preferences";
-    public static int PREFS_MODE=Context.MODE_PRIVATE;
+    public static final int ACTIVITY_RESULT_REGISTER =0x12345678;
+
+    public static String PREFS_NAME = "preferences";
+    public static int PREFS_MODE = Context.MODE_PRIVATE;
     private static String PREFS_SERVICE_URL = "service_url";
-    private static String PREFS_SERVICE_URL_DEFAULT ="https://nela.zpa.cz:8016/";
+    private static String PREFS_SERVICE_URL_DEFAULT = "https://nela.zpa.cz:8016/Items/api/";
+    private static String PREFS_CAMERA_ID = "camera_number";
+    private static int PREFS_CAMERA_ID_DEFAULT = 0;
+    private static String PREFS_BARCODE_TIMEOUT = "barcode_timeout";
+    private static int PREFS_BARCODE_TIMEOUT_DEFAULT = 25000;
 
     public static String getServiceUrl(SharedPreferences prefs) {
-        if (prefs==null) return PREFS_SERVICE_URL_DEFAULT; //bonbensicher und idiotenfest
-        String s=prefs.getString(PREFS_SERVICE_URL, PREFS_SERVICE_URL_DEFAULT); //vytahnem ze skladu
-        if (s.length()<1) s= PREFS_SERVICE_URL_DEFAULT; //pokud je to nejaka hovadina, tak default
+        if (prefs == null) return PREFS_SERVICE_URL_DEFAULT; //bonbensicher und idiotenfest
+        String s = prefs.getString(PREFS_SERVICE_URL, PREFS_SERVICE_URL_DEFAULT); //vytahnem ze skladu
+        if (s.length() < 1)
+            s = PREFS_SERVICE_URL_DEFAULT; //pokud je to nejaka hovadina, tak default
         return s; //vracim vydrenej vysledek
+    }
+
+    public static int getTimeout(SharedPreferences prefs) {
+        if (prefs == null) return PREFS_BARCODE_TIMEOUT_DEFAULT;
+        return prefs.getInt(PREFS_BARCODE_TIMEOUT, PREFS_BARCODE_TIMEOUT_DEFAULT);
+    }
+
+    public static int getCameraId(SharedPreferences prefs) {
+        if (prefs == null) return PREFS_CAMERA_ID_DEFAULT;
+        return prefs.getInt(PREFS_CAMERA_ID, PREFS_CAMERA_ID_DEFAULT);
     }
 
     //==============================================================================================
@@ -37,10 +54,10 @@ public class SetupActivity extends AppCompatActivity {
     //
 
     private void storeData() {
-        EditText connectionStringEditText = (EditText) findViewById(R.id.connection_string); //vytahnem si referenci na policko s textnem
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME,PREFS_MODE ); //zrobim preference
-        prefs.edit().putString(PREFS_SERVICE_URL, connectionStringEditText.getText().toString()).apply(); //naperem to do preferencesu
-        connectionStringEditText.setText(getServiceUrl(prefs));
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, PREFS_MODE); //zrobim preference
+        prefs.edit().putString(PREFS_SERVICE_URL, ((EditText) findViewById(R.id.connection_string)).getText().toString()).apply();
+        prefs.edit().putInt(PREFS_BARCODE_TIMEOUT, Integer.decode(((EditText) findViewById(R.id.barcode_timeout)).getText().toString())).apply();
+        prefs.edit().putInt(PREFS_CAMERA_ID, Integer.decode(((EditText) findViewById(R.id.camera_id)).getText().toString())).apply();
     }
 
     @Override
@@ -49,30 +66,21 @@ public class SetupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setup);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME,PREFS_MODE ); //zrobim preference
-
-        //editor connection stringu
-        EditText connectionStringEditText = (EditText) findViewById(R.id.connection_string); //vytahnem si referenci na policko s textnem
-        connectionStringEditText.setText(getServiceUrl(prefs)); //naperem do nej posledni znamou hodnotu
-
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, PREFS_MODE); //zrobim preference
+        ((EditText) findViewById(R.id.connection_string)).setText(getServiceUrl(prefs)); //url
+        ((EditText) findViewById(R.id.barcode_timeout)).setText(String.valueOf(getTimeout(prefs))); //timeoutu
+        ((EditText) findViewById(R.id.camera_id)).setText(String.valueOf(getCameraId(prefs))); //editor kamery
         //cudl aplikujici zmeny
-        Button applyButton = (Button) findViewById(R.id.apply); //vytahnem si referenci butonek
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                storeData();
-            }
+        ((Button) findViewById(R.id.apply)).setOnClickListener(v -> { //po klofnuti na cudl
+            storeData(); //ulozime novy data
+            setResult(Activity.RESULT_OK); //rikam ze je to ok
+            this.finish(); //a koncime
         });
-
-        /* naprd, ale pro pripad potreby se inspirovat
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });         */
+        //cudl registrace zmeny
+        ((Button) findViewById(R.id.register)).setOnClickListener(v -> { //po klofnuti na cudl
+            storeData(); //ulozime novy data
+            setResult(ACTIVITY_RESULT_REGISTER); //rikam ze je to ok
+            this.finish(); //a koncime
+        });
     }
-
 }

@@ -1,8 +1,4 @@
-package com.scurab.barcodescanner2;
-
-
-import com.scurab.barcodescanner2.forest.Empty;
-import com.scurab.barcodescanner2.forest.User;
+package com.scurab.barcodescanner2.forest;
 
 import io.reactivex.Observable;
 import retrofit2.http.Body;
@@ -11,9 +7,12 @@ import retrofit2.http.POST;
 
 public interface RestApi {
 
-    @GET("Items/api/Users")
+    @GET("Users")
     Observable<User[]> getUsers();
 
-    @POST("Items/api/Consfs")
+    @GET("ItemfViews/GetAvailable")
+    Observable<ItemfView[]> getAvailableItemfs();
+
+    @POST("Consfs")
     Observable<Empty> consfs(@Body Object Consfs);
 }
