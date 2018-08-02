@@ -13,6 +13,13 @@ public interface RestApi {
     @GET("ItemfViews/GetAvailable")
     Observable<ItemfView[]> getAvailableItemfs();
 
+    @POST("Consds")
+    Observable<Empty> consds(@Body Consds data);
+
     @POST("Consfs")
-    Observable<Empty> consfs(@Body Object Consfs);
+    Observable<Empty> consfs(@Body Consfs data);
+
+
+    @POST("UserDevices")
+    Observable<User> setUserDevice(@Body Object data);
 }

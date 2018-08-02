@@ -18,7 +18,7 @@ public class SetupActivity extends AppCompatActivity {
     //
     //
 
-    public static final int ACTIVITY_RESULT_REGISTER =0x12345678;
+    public static final int ACTIVITY_RESULT_REGISTER =0x4574;
 
     public static String PREFS_NAME = "preferences";
     public static int PREFS_MODE = Context.MODE_PRIVATE;

@@ -15,4 +15,5 @@
     <string name="barcode_timeout">Barcode scanner timeout</string>
     <string name="camera_number">Camera number</string>
     <string name="register">register</string>
+    <string name="user_register_title">Enter username</string>
 </resources>

@@ -2,13 +2,18 @@ package com.scurab.barcodescanner2;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -16,9 +21,12 @@ import com.google.gson.GsonBuilder;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.scurab.barcodescanner2.base.RxLifecycleActivity;
+import com.scurab.barcodescanner2.forest.Consd;
+import com.scurab.barcodescanner2.forest.Consds;
 import com.scurab.barcodescanner2.forest.Consfs;
 import com.scurab.barcodescanner2.forest.RestApi;
 import com.scurab.barcodescanner2.forest.User;
+import com.scurab.barcodescanner2.forest.UserDevices;
 
 import java.text.SimpleDateFormat;
 
@@ -85,6 +93,8 @@ public class MainActivity extends RxLifecycleActivity {
                         .observeOn(AndroidSchedulers.mainThread()); //spusti se diskoteka a davas tomu 2 funkce, jedna ktera se zavola, kdyz mas vysledek a druha pro pripad problemu
     }
 
+    //getRestApi().getUsers().compose(common()).subscribe(users -> {
+
     //Muzeme vesele logovat, protoze zname itemfID
     private void logConsf(int itemfID) {
         Consfs c = new Consfs();
@@ -126,21 +136,41 @@ public class MainActivity extends RxLifecycleActivity {
         });
     }
 
-    private User[] users;
-
-    private User[] getUsers() {
-        if (users == null) {
-            getRestApi().getUsers().compose(common()).subscribe(users -> {
-                this.users = users;
-            }, err -> {
-                showError(err);
-            });
-        }
-        return users;
-    }
-
     //zaznam sklenky
     private void logGlass(int itemId) throws Exception {
+        Consds c=new Consds();
+        c.Imei=getImei();
+        c.ItemdID=itemId;
+        getRestApi().consds(c).compose(common()).subscribe(r -> {
+            showOk(); //hotovo
+        }, err -> {
+            showError(err);
+        });
+    }
+
+    //registrace telefounu
+    private void register(String username) {
+        UserDevices ud=new UserDevices();
+        ud.Username=username;
+        ud.Imei=getImei();
+        getRestApi().setUserDevice(ud).compose(common()).subscribe(r -> {
+            showOk(); //hotovo
+        }, err -> {
+            showError(err);
+        });
+    }
+
+    //registrace se zadanim uzivatelskeho jmena
+    private void register() {
+        final EditText input = new EditText(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this); //zrobime buildera dialogu
+        builder.setTitle(R.string.user_register_title); //titulek a zprava
+        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        input.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
+        builder.setView(input);
+        builder.setPositiveButton(R.string.register, (dialog, which) -> register(input.getText().toString())); //a jdem to registrovat
+        AlertDialog dialog = builder.create(); //vyrobime dialog
+        dialog.show(); //a zobrazim to
     }
 
     //==============================================================================================
@@ -240,7 +270,7 @@ public class MainActivity extends RxLifecycleActivity {
         toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.settings) { //pokud je to klikanec na menu setting
                 restApi = null; //zahodime referenci na rest, bo to muze konfigurace zmenit, tak aby se to vyrobilo znova
-                startActivity(new Intent(this, SetupActivity.class)); //a startujeme aktivitu s nastavenima
+                startActivityForResult(new Intent(this, SetupActivity.class),SetupActivity.ACTIVITY_RESULT_REGISTER); //a startujeme aktivitu s nastavenima
                 return true; //nevim proc, asi ze jsem to zachytil
             }
             return false; //nevim proc, asi ze udalost nebyla zpracovana
@@ -264,6 +294,10 @@ public class MainActivity extends RxLifecycleActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if ((requestCode==SetupActivity.ACTIVITY_RESULT_REGISTER)&&(resultCode==SetupActivity.ACTIVITY_RESULT_REGISTER)) { //pokud setup chce udelat registraci
+            register();
+            return;
+        }
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) { //pokud je to nejakej vysledek
             int mode=getScannerMode(); //ztisim, v jakym rezimu jsme scaner volali
