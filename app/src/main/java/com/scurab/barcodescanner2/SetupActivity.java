@@ -9,6 +9,9 @@ import android.support.v7.widget.Toolbar;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.sql.Date;
+import java.util.Calendar;
+
 public class SetupActivity extends AppCompatActivity {
 
 
@@ -20,14 +23,17 @@ public class SetupActivity extends AppCompatActivity {
 
     public static final int ACTIVITY_RESULT_REGISTER =0x4574;
 
-    public static String PREFS_NAME = "preferences";
-    public static int PREFS_MODE = Context.MODE_PRIVATE;
-    private static String PREFS_SERVICE_URL = "service_url";
-    private static String PREFS_SERVICE_URL_DEFAULT = "https://nela.zpa.cz:8016/Items/api/";
-    private static String PREFS_CAMERA_ID = "camera_number";
-    private static int PREFS_CAMERA_ID_DEFAULT = 0;
-    private static String PREFS_BARCODE_TIMEOUT = "barcode_timeout";
-    private static int PREFS_BARCODE_TIMEOUT_DEFAULT = 25000;
+    public static final String PREFS_NAME = "preferences";
+    public static final int PREFS_MODE = Context.MODE_PRIVATE;
+    private static final String PREFS_SERVICE_URL = "service_url";
+    private static final String PREFS_SERVICE_URL_DEFAULT = "https://nela.zpa.cz:8016/Items/api/";
+    private static final String PREFS_CAMERA_ID = "camera_number";
+    private static final int PREFS_CAMERA_ID_DEFAULT = 0;
+    private static final String PREFS_BARCODE_TIMEOUT = "barcode_timeout";
+    private static final int PREFS_BARCODE_TIMEOUT_DEFAULT = 25000;
+    private static final String PREFS_LAST_BOTTLE_STORAGE_YEAR = "last bottle storage year";
+    private static final int PREFS_LAST_BOTTLE_STORAGE_YEAR_DEFAULT = Calendar.getInstance().get(Calendar.YEAR); //jako default se pekne hodi letosek
+
 
     public static String getServiceUrl(SharedPreferences prefs) {
         if (prefs == null) return PREFS_SERVICE_URL_DEFAULT; //bonbensicher und idiotenfest
@@ -45,6 +51,17 @@ public class SetupActivity extends AppCompatActivity {
     public static int getCameraId(SharedPreferences prefs) {
         if (prefs == null) return PREFS_CAMERA_ID_DEFAULT;
         return prefs.getInt(PREFS_CAMERA_ID, PREFS_CAMERA_ID_DEFAULT);
+    }
+
+    public static int getLastBottleStorageYear(SharedPreferences prefs) {
+        if (prefs == null) return PREFS_LAST_BOTTLE_STORAGE_YEAR_DEFAULT;
+        return prefs.getInt(PREFS_LAST_BOTTLE_STORAGE_YEAR, PREFS_LAST_BOTTLE_STORAGE_YEAR_DEFAULT);
+    }
+
+    public static void setLastBottleStorageYear(SharedPreferences prefs, int year) {
+        if (prefs!=null) {
+            prefs.edit().putInt(PREFS_LAST_BOTTLE_STORAGE_YEAR,year).apply();
+        }
     }
 
     //==============================================================================================
@@ -67,6 +84,7 @@ public class SetupActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, PREFS_MODE); //zrobim preference
+        ((Button) findViewById(R.id.register)).setText(getString(R.string.register)+"\n"+getString(R.string.unregister));
         ((EditText) findViewById(R.id.connection_string)).setText(getServiceUrl(prefs)); //url
         ((EditText) findViewById(R.id.barcode_timeout)).setText(String.valueOf(getTimeout(prefs))); //timeoutu
         ((EditText) findViewById(R.id.camera_id)).setText(String.valueOf(getCameraId(prefs))); //editor kamery

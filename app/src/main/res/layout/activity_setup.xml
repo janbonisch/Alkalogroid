@@ -1,62 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:background="@color/colorPrimary"
-        app:titleTextColor="@color/white"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/label1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/service_url"/>
-    <EditText
-        android:id="@+id/connection_string"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text"/>
-    <TextView
-        android:id="@+id/label12"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/barcode_timeout"/>
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            app:titleTextColor="@color/white" />
 
-    <EditText
-        android:id="@+id/barcode_timeout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="number"/>
-    <TextView
-        android:id="@+id/label13"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/camera_number"/>
-    <EditText
-        android:id="@+id/camera_id"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="number"/>
-    <Button
-        android:id="@+id/apply"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:lineSpacingExtra="18sp"
-        android:text="@string/apply" />
-    <Button
-        android:id="@+id/register"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:lineSpacingExtra="18sp"
-        android:text="@string/register" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/label1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/service_url" />
+
+        <EditText
+            android:id="@+id/connection_string"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+
+        <TextView
+            android:id="@+id/label12"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/barcode_timeout" />
+
+        <EditText
+            android:id="@+id/barcode_timeout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number" />
+
+        <TextView
+            android:id="@+id/label13"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/camera_number" />
+
+        <EditText
+            android:id="@+id/camera_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number" />
+
+        <Button
+            android:id="@+id/apply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:lineSpacingExtra="18sp"
+            android:text="@string/apply" />
+
+        <Button
+            android:id="@+id/register"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:lineSpacingExtra="18sp"
+            android:text="@string/register" />
+    </LinearLayout>
+</ScrollView>

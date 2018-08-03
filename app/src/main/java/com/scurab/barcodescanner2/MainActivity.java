@@ -2,13 +2,11 @@ package com.scurab.barcodescanner2;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -21,11 +19,9 @@ import com.google.gson.GsonBuilder;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.scurab.barcodescanner2.base.RxLifecycleActivity;
-import com.scurab.barcodescanner2.forest.Consd;
 import com.scurab.barcodescanner2.forest.Consds;
 import com.scurab.barcodescanner2.forest.Consfs;
 import com.scurab.barcodescanner2.forest.RestApi;
-import com.scurab.barcodescanner2.forest.User;
 import com.scurab.barcodescanner2.forest.UserDevices;
 
 import java.text.SimpleDateFormat;
@@ -100,11 +96,7 @@ public class MainActivity extends RxLifecycleActivity {
         Consfs c = new Consfs();
         c.Imei = getImei(); //kdo jsem
         c.ItemfID = itemfID; //k jakymu jidlu se hlasim
-        getRestApi().consfs(c).compose(common()).subscribe(r -> {
-            showOk(); //hotovo
-        }, err -> {
-            showError(err);
-        });
+        getRestApi().consfs(c).compose(common()).subscribe(r -> showOk(), err -> showError(err));
     }
 
     //Zaznam jidla. Nezname itemfID, takze ho musime vytahnout ze sluzby, pokud jich je vic, tak nechat vybrat a nasledne zalogovat.
@@ -131,9 +123,7 @@ public class MainActivity extends RxLifecycleActivity {
                 AlertDialog dialog = builder.create(); //vyrobime dialog
                 dialog.show(); //a zobrazim to
             }
-        }, err -> {
-            showError(err);
-        });
+        }, err -> showError(err));
     }
 
     //zaznam sklenky
@@ -141,11 +131,7 @@ public class MainActivity extends RxLifecycleActivity {
         Consds c=new Consds();
         c.Imei=getImei();
         c.ItemdID=itemId;
-        getRestApi().consds(c).compose(common()).subscribe(r -> {
-            showOk(); //hotovo
-        }, err -> {
-            showError(err);
-        });
+        getRestApi().consds(c).compose(common()).subscribe(r -> showOk(), err -> showError(err));
     }
 
     //registrace telefounu
@@ -153,12 +139,13 @@ public class MainActivity extends RxLifecycleActivity {
         UserDevices ud=new UserDevices();
         ud.Username=username;
         ud.Imei=getImei();
-        getRestApi().setUserDevice(ud).compose(common()).subscribe(r -> {
-            showOk(); //hotovo
-        }, err -> {
-            showError(err);
-        });
+        getRestApi().registrerDevice(ud).compose(common()).subscribe(r -> showOk(), err -> showError(err));
     }
+
+    private void unregister() {
+        getRestApi().unregistrerDevice(getImei()).compose(common()).subscribe(r -> showOk(), err -> showError(err));
+    }
+
 
     //registrace se zadanim uzivatelskeho jmena
     private void register() {
@@ -169,6 +156,7 @@ public class MainActivity extends RxLifecycleActivity {
         input.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
         builder.setView(input);
         builder.setPositiveButton(R.string.register, (dialog, which) -> register(input.getText().toString())); //a jdem to registrovat
+        builder.setNegativeButton(R.string.unregister, (dialog, which) -> unregister()); //a jdem to odregistrovat
         AlertDialog dialog = builder.create(); //vyrobime dialog
         dialog.show(); //a zobrazim to
     }
@@ -179,7 +167,13 @@ public class MainActivity extends RxLifecycleActivity {
     //
     //
 
-    private static final int ID_FOOD = 0xFFFFFFFE; //extra kod pro jidlo
+    private static final int ID_EXTRAS=0x7FFFEEEE; //extra kody
+    private static final int ID_EXT_MODE = ID_EXTRAS+0; //logovani jidla
+    private static final int ID_FOOD = ID_EXTRAS+1; //logovani jidla
+    private static final int ID_SHOW = ID_EXTRAS+2; //ukaz ruzny statistiky
+    private static final int ID_BUY_FOOD = ID_EXTRAS+3; //zakoupeni jidla
+    private static final int ID_STORE_BOTTLE = ID_EXTRAS+4; //naskladneni flasky
+    private static final int ID_UNSTORE_BOTTLE = ID_EXTRAS+5; //odskladneni flasky
     private static final int ID_WINE_BOTTLE_START = 0x00000000; //pocatek kodu pro flasky vina
     private static final int ID_WINE_BOTTLE_END = 0x0000FFFF; //konec kodu pro flasky vina
 
@@ -187,9 +181,18 @@ public class MainActivity extends RxLifecycleActivity {
     private void barcodeAction(int code) {
         try {
             switch (code) { //kody mohou mit ruzny vyznam
+                case ID_EXT_MODE:
+                    setExtendedMode(true);
+                    break;
                 case ID_FOOD: //extra kod pro jidlo
                     logConsf(); //loguj jidlo
                     return; //a slus
+                case ID_SHOW:
+                case ID_BUY_FOOD:
+                case ID_STORE_BOTTLE:
+                case ID_UNSTORE_BOTTLE:
+                    showError("Not supported yet.");
+                    return;
                 default: //ostatni kody jsou jeden kus sklenice
                     if ((code >= ID_WINE_BOTTLE_START) && (code <= ID_WINE_BOTTLE_END)) {
                         logGlass(code);
@@ -259,6 +262,13 @@ public class MainActivity extends RxLifecycleActivity {
         err.printStackTrace();
     }
 
+    private void setExtendedMode(boolean ext) {
+        int visibility=ext?View.VISIBLE:View.GONE;
+        findViewById(R.id.buyFood).setVisibility(visibility);
+        findViewById(R.id.storeBottle).setVisibility(visibility);
+        findViewById(R.id.unstoreBottle).setVisibility(visibility);
+    }
+
     @SuppressLint("CheckResult")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -275,8 +285,13 @@ public class MainActivity extends RxLifecycleActivity {
             }
             return false; //nevim proc, asi ze udalost nebyla zpracovana
         });
-        findViewById(R.id.drink).setOnClickListener(v -> startScan(SCANNER_MODE_BASE)); //akce jen podle kodu
-        findViewById(R.id.fork).setOnClickListener(v -> barcodeAction(ID_FOOD)); //jako bychom naskenovali kod pro jedno jidlo
+        findViewById(R.id.drink).setOnClickListener(v -> startScan(SCANNER_MODE_BASE)); //simulovane naskenovani pomoci cudlu
+        findViewById(R.id.fork).setOnClickListener(v -> barcodeAction(ID_FOOD)); //simulovane naskenovani pomoci cudlu
+        findViewById(R.id.show).setOnClickListener(v -> barcodeAction(ID_SHOW)); //simulovane naskenovani pomoci cudlu
+        findViewById(R.id.buyFood).setOnClickListener(v -> barcodeAction(ID_BUY_FOOD)); //simulovane naskenovani pomoci cudlu
+        findViewById(R.id.storeBottle).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE)); //simulovane naskenovani pomoci cudlu
+        findViewById(R.id.unstoreBottle).setOnClickListener(v -> barcodeAction(ID_UNSTORE_BOTTLE)); //simulovane naskenovani pomoci cudlu
+        setExtendedMode(false);
     }
 
     private void startScan(int mode) {
