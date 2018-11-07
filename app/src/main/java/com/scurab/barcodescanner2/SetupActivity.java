@@ -26,13 +26,15 @@ public class SetupActivity extends AppCompatActivity {
     public static final String PREFS_NAME = "preferences";
     public static final int PREFS_MODE = Context.MODE_PRIVATE;
     private static final String PREFS_SERVICE_URL = "service_url";
-    private static final String PREFS_SERVICE_URL_DEFAULT = "https://nela.zpa.cz:8016/Items/api/";
+    private static final String PREFS_SERVICE_URL_DEFAULT = "https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/";
     private static final String PREFS_CAMERA_ID = "camera_number";
     private static final int PREFS_CAMERA_ID_DEFAULT = 0;
     private static final String PREFS_BARCODE_TIMEOUT = "barcode_timeout";
     private static final int PREFS_BARCODE_TIMEOUT_DEFAULT = 25000;
     private static final String PREFS_LAST_BOTTLE_STORAGE_YEAR = "last bottle storage year";
     private static final int PREFS_LAST_BOTTLE_STORAGE_YEAR_DEFAULT = Calendar.getInstance().get(Calendar.YEAR); //jako default se pekne hodi letosek
+    private static final String PREFS_EXTMODE = "extmode";
+    private static final boolean extmode = false;
 
 
     public static String getServiceUrl(SharedPreferences prefs) {
@@ -64,6 +66,17 @@ public class SetupActivity extends AppCompatActivity {
         }
     }
 
+    public static void setExtendMode(SharedPreferences prefs, boolean mode) {
+        if (prefs!=null) {
+            prefs.edit().putBoolean(PREFS_EXTMODE,mode).apply();
+        }
+    }
+
+    public static boolean getExtmode(SharedPreferences prefs) {
+        if (prefs == null) return false;
+        return prefs.getBoolean(PREFS_EXTMODE,false);
+    }
+
     //==============================================================================================
     //
     // Vlastni aktivita a jeji pomocnici
@@ -81,6 +94,7 @@ public class SetupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup);
+        //TODO: nacpat do setuptitulku taky verzi
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, PREFS_MODE); //zrobim preference

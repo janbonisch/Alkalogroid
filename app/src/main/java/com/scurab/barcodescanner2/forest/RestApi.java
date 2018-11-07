@@ -13,11 +13,14 @@ import retrofit2.http.Url;
 
 public interface RestApi {
 
-    @GET("Users")
+    @GET("Users")   //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/Users
     Observable<User[]> getUsers();
 
-    @GET("ItemfViews/GetAvailable")
-    Observable<ItemfView[]> getAvailableItemfs();
+    @GET("ItemfViews/GetAvailable") //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/ItemfViews/GetAvailable
+    Observable<ItemfView[]> getAvailableItemfs(); //pozor, toto nevraci co lze sezrat, ale jen to, co lze smazat
+
+    @GET("ItemfViews/GetForDayInserted/{day}")   //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/ItemfViews/GetForDayInserted/2018-11-05
+    Observable<ItemfView[]> GetForDayInserted(@Path("day") String den);
 
     @POST("Consds")
     Observable<Empty> consds(@Body Consds data);

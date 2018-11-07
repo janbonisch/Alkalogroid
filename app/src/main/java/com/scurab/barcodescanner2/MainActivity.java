@@ -21,16 +21,19 @@ import com.google.zxing.integration.android.IntentResult;
 import com.scurab.barcodescanner2.base.RxLifecycleActivity;
 import com.scurab.barcodescanner2.forest.Consds;
 import com.scurab.barcodescanner2.forest.Consfs;
+import com.scurab.barcodescanner2.forest.ItemfView;
 import com.scurab.barcodescanner2.forest.RestApi;
 import com.scurab.barcodescanner2.forest.UserDevices;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import io.reactivex.ObservableTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.HttpException;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
@@ -89,41 +92,47 @@ public class MainActivity extends RxLifecycleActivity {
                         .observeOn(AndroidSchedulers.mainThread()); //spusti se diskoteka a davas tomu 2 funkce, jedna ktera se zavola, kdyz mas vysledek a druha pro pripad problemu
     }
 
-    //getRestApi().getUsers().compose(common()).subscribe(users -> {
-
     //Muzeme vesele logovat, protoze zname itemfID
     private void logConsf(int itemfID) {
         Consfs c = new Consfs();
         c.Imei = getImei(); //kdo jsem
         c.ItemfID = itemfID; //k jakymu jidlu se hlasim
-        getRestApi().consfs(c).compose(common()).subscribe(r -> showOk(), err -> showError(err));
+        getRestApi().consfs(c).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.logConsfOk)), err -> showError(getResources().getString(R.string.logConsfError),err));
+    }
+
+    private String[] cosfToStrings(ItemfView[] items) {
+        int len=items.length; //kolik toho bude
+        String[] choices = new String[len]; //vyrobime pole
+        for (int i = 0; i < len; i++) { //a plnime datama
+            choices[i]=(new SimpleDateFormat("hh:MM ").format(items[i].DtInsert))+items[i].Username; //naformatujeme do lidskeho tvaru
+        }
+        return choices;
     }
 
     //Zaznam jidla. Nezname itemfID, takze ho musime vytahnout ze sluzby, pokud jich je vic, tak nechat vybrat a nasledne zalogovat.
     private void logConsf() {
-        getRestApi().getAvailableItemfs().compose(common()).subscribe(items -> { //nejprve si zjistime, k jakymu jidlu se budeme prihlasovat
+        //getRestApi().getAvailableItemfs().compose(common()).subscribe(items -> { //nejprve si zjistime, k jakymu jidlu se budeme prihlasovat
+        Calendar c= Calendar.getInstance();
+        String dateForMeca=c.get(Calendar.YEAR)+"-"+(c.get(Calendar.MONTH)+1)+"-"+c.get(Calendar.DAY_OF_MONTH);
+        getRestApi().GetForDayInserted(dateForMeca).compose(common()).subscribe(items -> { //nejprve si zjistime, k jakymu jidlu se budeme prihlasovat
             int len = items.length; //kolik je polozek
             if (len < 1) { //nejsou zadny polozky
-                //TODO: ukazat nejakej problem
+                showError(getResources().getString(R.string.logConsfNothink));
                 return; //pokud neni z ceho vybirat, tak nic
             }
             if (len == 1) { //pokud mame prave jednu polozku
                 logConsf(items[0].ItemfID); //tak muzeme rovnou logovat bez nejakejch problemu
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this); //zrobime buildera dialogu
-                builder.setTitle(R.string.food_select_date); //titulek a zprava
-                String[] choices = new String[len]; //vyrobime pole
-                for (int i = 0; i < len; i++) { //a plnime datama
-                    choices[i]=new SimpleDateFormat(getString(R.string.food_select_date_format)).format(items[i].DtInsert); //naformatujeme do lidskeho tvaru
-                }
-                builder.setSingleChoiceItems(choices, 0, (dialog, which) -> { //poslouchadlo na klikanec
+                builder.setTitle(getResources().getString(R.string.logConsfSelect)); //titulek a zprava
+                builder.setSingleChoiceItems(cosfToStrings(items), 0, (dialog, which) -> { //poslouchadlo na klikanec
                     dialog.dismiss();
                     logConsf(items[which].ItemfID); //a to je von, trada logovat
                 });
                 AlertDialog dialog = builder.create(); //vyrobime dialog
                 dialog.show(); //a zobrazim to
             }
-        }, err -> showError(err));
+        }, err -> showError(getResources().getString(R.string.logConsfError),err));
     }
 
     //zaznam sklenky
@@ -131,7 +140,7 @@ public class MainActivity extends RxLifecycleActivity {
         Consds c=new Consds();
         c.Imei=getImei();
         c.ItemdID=itemId;
-        getRestApi().consds(c).compose(common()).subscribe(r -> showOk(), err -> showError(err));
+        getRestApi().consds(c).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.logGlassOk)), err -> showError(getResources().getString(R.string.logGlassError),err));
     }
 
     //registrace telefounu
@@ -139,11 +148,12 @@ public class MainActivity extends RxLifecycleActivity {
         UserDevices ud=new UserDevices();
         ud.Username=username;
         ud.Imei=getImei();
-        getRestApi().registrerDevice(ud).compose(common()).subscribe(r -> showOk(), err -> showError(err));
+        getRestApi().registrerDevice(ud).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.registerOk)), err -> showError(getResources().getString(R.string.logGlassError),err));
     }
 
+    //odregistrovani po predeslem registrovani uzivatelskeho jmena
     private void unregister() {
-        getRestApi().unregistrerDevice(getImei()).compose(common()).subscribe(r -> showOk(), err -> showError(err));
+        getRestApi().unregistrerDevice(getImei()).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.unregisterOk)), err -> showError(getResources().getString(R.string.unregisterError),err));
     }
 
 
@@ -167,32 +177,42 @@ public class MainActivity extends RxLifecycleActivity {
     //
     //
 
-    private static final int ID_EXTRAS=0x7FFFEEEE; //extra kody
+    private static final int ID_EXTRAS=99000000; //extra kody
     private static final int ID_EXT_MODE = ID_EXTRAS+0; //logovani jidla
-    private static final int ID_FOOD = ID_EXTRAS+1; //logovani jidla
-    private static final int ID_SHOW = ID_EXTRAS+2; //ukaz ruzny statistiky
-    private static final int ID_BUY_FOOD = ID_EXTRAS+3; //zakoupeni jidla
-    private static final int ID_STORE_BOTTLE = ID_EXTRAS+4; //naskladneni flasky
-    private static final int ID_UNSTORE_BOTTLE = ID_EXTRAS+5; //odskladneni flasky
-    private static final int ID_WINE_BOTTLE_START = 0x00000000; //pocatek kodu pro flasky vina
-    private static final int ID_WINE_BOTTLE_END = 0x0000FFFF; //konec kodu pro flasky vina
+    private static final int ID_EXT_MODE_END = ID_EXTRAS+1; //logovani jidla
+    private static final int ID_FOOD = ID_EXTRAS+2; //logovani jidla
+    private static final int ID_SHOW = ID_EXTRAS+3; //ukaz ruzny statistiky
+    private static final int ID_BUY_FOOD = ID_EXTRAS+4; //zakoupeni jidla
+    private static final int ID_BUY_FOOD_UNDO = ID_EXTRAS+5; //zakoupeni jidla
+    private static final int ID_STORE_BOTTLE = ID_EXTRAS+6; //naskladneni flasky
+    private static final int ID_STORE_BOTTLE_UNDO = ID_EXTRAS+7; //odskladneni flasky
+    private static final int ID_WINE_BOTTLE_START = 100001; //pocatek kodu pro flasky vina
+    private static final int ID_WINE_BOTTLE_END =   199999; //konec kodu pro flasky vina
 
     //provedeni akce podle ciselneho kodu
     private void barcodeAction(int code) {
         try {
             switch (code) { //kody mohou mit ruzny vyznam
                 case ID_EXT_MODE:
+                    SetupActivity.setExtendMode(getSharedPreferences(),true);
                     setExtendedMode(true);
+                    break;
+                case ID_EXT_MODE_END:
+                    SetupActivity.setExtendMode(getSharedPreferences(),false);
+                    setExtendedMode(false);
                     break;
                 case ID_FOOD: //extra kod pro jidlo
                     logConsf(); //loguj jidlo
                     return; //a slus
+                case ID_STORE_BOTTLE:
+                    startScan(SCANNER_MODE_STORE_BOTTLE);
+                    return;
+                case ID_STORE_BOTTLE_UNDO:
+                    startScan(SCANNER_MODE_STORE_BOTTLE_UNDO);
+                    return;
                 case ID_SHOW:
                 case ID_BUY_FOOD:
-                case ID_STORE_BOTTLE:
-                case ID_UNSTORE_BOTTLE:
-                    showError("Not supported yet.");
-                    return;
+                case ID_BUY_FOOD_UNDO:
                 default: //ostatni kody jsou jeden kus sklenice
                     if ((code >= ID_WINE_BOTTLE_START) && (code <= ID_WINE_BOTTLE_END)) {
                         logGlass(code);
@@ -229,6 +249,8 @@ public class MainActivity extends RxLifecycleActivity {
     private SharedPreferences preferences;
     private static final String SCANNER_MODE="scanner_mode"; //jak to prase si to ulozim do preferences, sichr je sichr
     private static final int SCANNER_MODE_BASE =1;  //normalni provoz, tedy akce podle naskenovaneho kodu
+    private static final int SCANNER_MODE_STORE_BOTTLE =2;  //vkladame flasku
+    private static final int SCANNER_MODE_STORE_BOTTLE_UNDO =3; //odstraneni vlozene flasky
 
     private int getScannerMode() {
         return getSharedPreferences().getInt(SCANNER_MODE,SCANNER_MODE_BASE);
@@ -245,28 +267,61 @@ public class MainActivity extends RxLifecycleActivity {
         return preferences;
     }
 
+    //Toast.makeText(this, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
     private void showOk(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getResources().getString(R.string.showOkTittle)); //titulek a zprava
+        builder.setMessage(msg);
+        builder.setPositiveButton(getResources().getString(R.string.ok),null);
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
-    private void showOk() {
-        showOk(getResources().getString(R.string.ok)); //reknu ze dobry
-    }
-
+    //Zobrazi chybu
     private void showError(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getResources().getString(R.string.error)); //titulek a zprava
+        builder.setMessage(msg);
+        builder.setPositiveButton(getResources().getString(R.string.error_accept),null);
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
+    //Vyrobi textovy popis chyby
+    private String getThrowableDescription(Throwable err) {
+        if (err instanceof HttpException) {
+            try {
+                HttpException e = (HttpException) err;
+                return e.getMessage();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return err.getMessage();
+    }
+
+    //Zobrazi chybu
     private void showError(Throwable err) {
-        showError(err.getLocalizedMessage());
-        err.printStackTrace();
+        showError(getThrowableDescription(err));
     }
 
+    //Zobrazi chybu s uvodnim vysvetlenim.
+    private void showError(String msg, Throwable err) {
+        err.printStackTrace();
+        String es=getThrowableDescription(err);
+        if (es.length()>0) { //pokud mame nejake zajimave upresneni
+            msg+="\n"+"\n"+es; //tak to prihodime
+        }
+        showError(msg); //ukaz chybu
+    }
+
+    //Nastaveni rozsireneho modu
     private void setExtendedMode(boolean ext) {
         int visibility=ext?View.VISIBLE:View.GONE;
         findViewById(R.id.buyFood).setVisibility(visibility);
+        findViewById(R.id.buyFoodUndo).setVisibility(visibility);
         findViewById(R.id.storeBottle).setVisibility(visibility);
-        findViewById(R.id.unstoreBottle).setVisibility(visibility);
+        findViewById(R.id.storeBottleUndo).setVisibility(visibility);
     }
 
     @SuppressLint("CheckResult")
@@ -289,9 +344,10 @@ public class MainActivity extends RxLifecycleActivity {
         findViewById(R.id.fork).setOnClickListener(v -> barcodeAction(ID_FOOD)); //simulovane naskenovani pomoci cudlu
         findViewById(R.id.show).setOnClickListener(v -> barcodeAction(ID_SHOW)); //simulovane naskenovani pomoci cudlu
         findViewById(R.id.buyFood).setOnClickListener(v -> barcodeAction(ID_BUY_FOOD)); //simulovane naskenovani pomoci cudlu
+        findViewById(R.id.buyFoodUndo).setOnClickListener(v -> barcodeAction(ID_BUY_FOOD_UNDO)); //simulovane naskenovani pomoci cudlu
         findViewById(R.id.storeBottle).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE)); //simulovane naskenovani pomoci cudlu
-        findViewById(R.id.unstoreBottle).setOnClickListener(v -> barcodeAction(ID_UNSTORE_BOTTLE)); //simulovane naskenovani pomoci cudlu
-        setExtendedMode(false);
+        findViewById(R.id.storeBottleUndo).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE_UNDO)); //simulovane naskenovani pomoci cudlu
+        setExtendedMode(SetupActivity.getExtmode(getSharedPreferences()));
     }
 
     private void startScan(int mode) {
@@ -316,13 +372,19 @@ public class MainActivity extends RxLifecycleActivity {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) { //pokud je to nejakej vysledek
             int mode=getScannerMode(); //ztisim, v jakym rezimu jsme scaner volali
+            setScannerMode(SCANNER_MODE_BASE); //a preklapime na zaklad, to se dela vzdycky, tak uz muzeme tadyk
             switch (mode) {
                 case SCANNER_MODE_BASE:
                     barcodeAction(result.getContents()); //zpracujeme prijaty kod
                     break;
+                case SCANNER_MODE_STORE_BOTTLE:
+                    showError("Delame ze nakladam flasku "+result.getContents());
+                    break;
+                case SCANNER_MODE_STORE_BOTTLE_UNDO:
+                    showError("Delame ze rusime flasku "+result.getContents());
+                    break;
                 default:
                     showError("Unknown scanner mode "+mode);
-                    setScannerMode(SCANNER_MODE_BASE); //a pro sichr to prepneme do zakladniho
                     break;
             }
         } else { //co to sem leze za hovadiny
