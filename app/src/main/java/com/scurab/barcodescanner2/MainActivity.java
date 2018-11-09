@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,13 +26,10 @@ import com.scurab.barcodescanner2.forest.UserDevices;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
-import io.reactivex.ObservableTransformer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.HttpException;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
@@ -83,15 +79,6 @@ public class MainActivity extends RxLifecycleActivity {
         return restApi;
     }
 
-    //spolecny vcpicarny pro praci s restApi, tak at to mam na jednom miste
-    private <T> ObservableTransformer<T, T> common() {
-        return upstream ->
-                upstream.compose(bindToLifecycle()) // tohle to svaze s cyklem activity na android, takze kdyz appku zavres behem tohohle dotazu, tak to vicemene zahodi
-                        .compose(bindToProgressBar(progressBarContainer))    //aktivace progressbaru
-                        .subscribeOn(Schedulers.io()) //tohle zase ze ty nasledujici callback funkce se maj zavolat v main thready, abys mohl hrabat do UI (pac android te nenecha pracovat s UI v nejakym jinym thread)
-                        .observeOn(AndroidSchedulers.mainThread()); //spusti se diskoteka a davas tomu 2 funkce, jedna ktera se zavola, kdyz mas vysledek a druha pro pripad problemu
-    }
-
     //Muzeme vesele logovat, protoze zname itemfID
     private void logConsf(int itemfID) {
         Consfs c = new Consfs();
@@ -100,11 +87,13 @@ public class MainActivity extends RxLifecycleActivity {
         getRestApi().consfs(c).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.logConsfOk)), err -> showError(getResources().getString(R.string.logConsfError),err));
     }
 
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("hh:MM ", Locale.getDefault());
+
     private String[] cosfToStrings(ItemfView[] items) {
         int len=items.length; //kolik toho bude
         String[] choices = new String[len]; //vyrobime pole
         for (int i = 0; i < len; i++) { //a plnime datama
-            choices[i]=(new SimpleDateFormat("hh:MM ").format(items[i].DtInsert))+items[i].Username; //naformatujeme do lidskeho tvaru
+            choices[i]=(SIMPLE_DATE_FORMAT.format(items[i].DtInsert))+items[i].Username; //naformatujeme do lidskeho tvaru
         }
         return choices;
     }
@@ -211,6 +200,8 @@ public class MainActivity extends RxLifecycleActivity {
                     startScan(SCANNER_MODE_STORE_BOTTLE_UNDO);
                     return;
                 case ID_SHOW:
+                    startActivity(new Intent(this, ListActivity.class));
+                    return;
                 case ID_BUY_FOOD:
                 case ID_BUY_FOOD_UNDO:
                 default: //ostatni kody jsou jeden kus sklenice
@@ -265,54 +256,6 @@ public class MainActivity extends RxLifecycleActivity {
             preferences = getSharedPreferences(SetupActivity.PREFS_NAME, SetupActivity.PREFS_MODE); //zrobim preference
         }
         return preferences;
-    }
-
-    //Toast.makeText(this, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
-    private void showOk(String msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getResources().getString(R.string.showOkTittle)); //titulek a zprava
-        builder.setMessage(msg);
-        builder.setPositiveButton(getResources().getString(R.string.ok),null);
-        AlertDialog alert = builder.create();
-        alert.show();
-    }
-
-    //Zobrazi chybu
-    private void showError(String msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getResources().getString(R.string.error)); //titulek a zprava
-        builder.setMessage(msg);
-        builder.setPositiveButton(getResources().getString(R.string.error_accept),null);
-        AlertDialog alert = builder.create();
-        alert.show();
-    }
-
-    //Vyrobi textovy popis chyby
-    private String getThrowableDescription(Throwable err) {
-        if (err instanceof HttpException) {
-            try {
-                HttpException e = (HttpException) err;
-                return e.getMessage();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return err.getMessage();
-    }
-
-    //Zobrazi chybu
-    private void showError(Throwable err) {
-        showError(getThrowableDescription(err));
-    }
-
-    //Zobrazi chybu s uvodnim vysvetlenim.
-    private void showError(String msg, Throwable err) {
-        err.printStackTrace();
-        String es=getThrowableDescription(err);
-        if (es.length()>0) { //pokud mame nejake zajimave upresneni
-            msg+="\n"+"\n"+es; //tak to prihodime
-        }
-        showError(msg); //ukaz chybu
     }
 
     //Nastaveni rozsireneho modu
@@ -396,5 +339,10 @@ public class MainActivity extends RxLifecycleActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
+    }
+
+    @Override
+    protected View getProgressBarContainer() {
+        return progressBarContainer;
     }
 }

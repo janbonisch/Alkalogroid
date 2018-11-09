@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="divider">1dp</dimen>
+    <dimen name="gap_normal">8dp</dimen>
+    <dimen name="log_item_min_width">75dp</dimen>
+</resources>

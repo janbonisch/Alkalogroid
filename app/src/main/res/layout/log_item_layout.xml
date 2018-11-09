@@ -1,51 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:divider="@drawable/divider_vertical"
+    android:padding="@dimen/gap_normal"
+    android:showDividers="middle">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp">
+        android:minWidth="@dimen/log_item_min_width"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/itemDate"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/itemDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="1.1.2000" />
-
-            <TextView
-                android:id="@+id/itemItme"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="18:32" />
-
-        </LinearLayout>
+            tools:text="88.88.8888" />
 
         <TextView
-            android:id="@+id/itemDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Rulandské šedé 2018" />
+            android:id="@+id/itemTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="18:32" />
 
-        <TextView
-            android:id="@+id/itemPrice"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="31,60 Kč" />
     </LinearLayout>
-</android.support.constraint.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/itemDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        tools:text="Rulandské šedé 2018" />
+
+    <TextView
+        android:id="@+id/itemPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="31,60 Kč" />
+</LinearLayout>
