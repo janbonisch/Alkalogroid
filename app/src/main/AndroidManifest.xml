@@ -22,7 +22,7 @@
         <activity
             android:name=".SetupActivity"
             android:label="@string/title_activity_setup"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>
