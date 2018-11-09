@@ -108,9 +108,10 @@ public class MainActivity extends RxLifecycleActivity {
             if (len < 1) { //nejsou zadny polozky
                 showError(getResources().getString(R.string.logConsfNothink));
                 return; //pokud neni z ceho vybirat, tak nic
-            }
-            if (len == 1) { //pokud mame prave jednu polozku
+                /* i jednojidlo se bude vybirat
+            } else if (len == 1) { //pokud mame prave jednu polozku
                 logConsf(items[0].ItemfID); //tak muzeme rovnou logovat bez nejakejch problemu
+                */
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this); //zrobime buildera dialogu
                 builder.setTitle(getResources().getString(R.string.logConsfSelect)); //titulek a zprava
@@ -220,7 +221,7 @@ public class MainActivity extends RxLifecycleActivity {
     //procedeni akce podle kodu v textove podobe
     private void barcodeAction(String code) {
         if (code == null) { //neni nic
-            showError(getResources().getString(R.string.canceled)); //pokud neni vubec nic, tak slus nahned
+            showError(getResources().getString(R.string.barcode_error)); //pokud neni vubec nic, tak slus nahned
             return; //slus
         }
         try {
@@ -296,7 +297,7 @@ public class MainActivity extends RxLifecycleActivity {
     private void startScan(int mode) {
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setPrompt(getString(R.string.barcode_scan));
+        integrator.setPrompt(getResources().getString(R.string.scan_a_barcode));
         integrator.setCameraId(SetupActivity.getCameraId(getSharedPreferences()));  // Use a specific camera of the device
         integrator.setTimeout(SetupActivity.getTimeout(getSharedPreferences())); //jakej to bude mit timeoutek
         integrator.setBeepEnabled(false);
