@@ -133,6 +133,30 @@ public class MainActivity extends RxLifecycleActivity {
         getRestApi().consds(c).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.logGlassOk)), err -> showError(getResources().getString(R.string.logGlassError),err));
     }
 
+    private void logGlassExt() throws Exception {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this); //zrobime buildera dialogu
+        builder.setTitle(getResources().getString(R.string.drink_ext_title)); //titulek a zprava
+        String[] items={
+                getResources().getString(R.string.drink_ext_half),
+                getResources().getString(R.string.drink_ext_bottle),
+        };
+        builder.setSingleChoiceItems(items, 0, (dialog, which) -> { //poslouchadlo na klikanec
+            dialog.dismiss();
+            String what=items[which]; //tak co to bude
+            if (what.equalsIgnoreCase(getResources().getString(R.string.drink_ext_half))) {
+                startScan(SCANNER_MODE_HALF,what); //spoustime skenovani
+            } else if (what.equalsIgnoreCase(getResources().getString(R.string.drink_ext_bottle))) {
+                startScan(SCANNER_MODE_BOTTLE,what); //spoustime skenovani
+            }
+        });
+        AlertDialog dialog = builder.create(); //vyrobime dialog
+        dialog.show(); //a zobrazim to
+    }
+
+    private void allowWebAccess() {
+        getRestApi().AllowWebAccess(getImei()).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.allowWebAccessOk)), err -> showError(getResources().getString(R.string.allowWebAccessError),err));
+    }
+
     //registrace telefounu
     private void register(String username) {
         UserDevices ud=new UserDevices();
@@ -176,8 +200,16 @@ public class MainActivity extends RxLifecycleActivity {
     private static final int ID_BUY_FOOD_UNDO = ID_EXTRAS+5; //zakoupeni jidla
     private static final int ID_STORE_BOTTLE = ID_EXTRAS+6; //naskladneni flasky
     private static final int ID_STORE_BOTTLE_UNDO = ID_EXTRAS+7; //odskladneni flasky
+    private static final int ID_DRINK_EXT= ID_EXTRAS+8; //extra sklinka
+    private static final int ID_ALLOW_WEB_ACCESS= ID_EXTRAS+9; //povolime web
+
     private static final int ID_WINE_BOTTLE_START = 100001; //pocatek kodu pro flasky vina
     private static final int ID_WINE_BOTTLE_END =   199999; //konec kodu pro flasky vina
+
+    private boolean barcodeActionBoolean(int code) {
+        barcodeAction(code);
+        return true;
+    }
 
     //provedeni akce podle ciselneho kodu
     private void barcodeAction(int code) {
@@ -195,13 +227,19 @@ public class MainActivity extends RxLifecycleActivity {
                     logConsf(); //loguj jidlo
                     return; //a slus
                 case ID_STORE_BOTTLE:
-                    startScan(SCANNER_MODE_STORE_BOTTLE);
+                    startScan(SCANNER_MODE_STORE_BOTTLE,"");
                     return;
                 case ID_STORE_BOTTLE_UNDO:
-                    startScan(SCANNER_MODE_STORE_BOTTLE_UNDO);
+                    startScan(SCANNER_MODE_STORE_BOTTLE_UNDO,"");
                     return;
                 case ID_SHOW:
                     startActivity(new Intent(this, ListActivity.class));
+                    return;
+                case ID_DRINK_EXT:
+                    logGlassExt();
+                    return;
+                case ID_ALLOW_WEB_ACCESS:
+                    allowWebAccess();
                     return;
                 case ID_BUY_FOOD:
                 case ID_BUY_FOOD_UNDO:
@@ -243,6 +281,8 @@ public class MainActivity extends RxLifecycleActivity {
     private static final int SCANNER_MODE_BASE =1;  //normalni provoz, tedy akce podle naskenovaneho kodu
     private static final int SCANNER_MODE_STORE_BOTTLE =2;  //vkladame flasku
     private static final int SCANNER_MODE_STORE_BOTTLE_UNDO =3; //odstraneni vlozene flasky
+    private static final int SCANNER_MODE_HALF =4; //pulsklenka
+    private static final int SCANNER_MODE_BOTTLE =5; //cela flaska
 
     private int getScannerMode() {
         return getSharedPreferences().getInt(SCANNER_MODE,SCANNER_MODE_BASE);
@@ -284,9 +324,11 @@ public class MainActivity extends RxLifecycleActivity {
             }
             return false; //nevim proc, asi ze udalost nebyla zpracovana
         });
-        findViewById(R.id.drink).setOnClickListener(v -> startScan(SCANNER_MODE_BASE)); //simulovane naskenovani pomoci cudlu
+        findViewById(R.id.drink).setOnClickListener(v -> startScan(SCANNER_MODE_BASE,"")); //simulovane naskenovani pomoci cudlu
+        findViewById(R.id.drink).setOnLongClickListener(v -> barcodeActionBoolean(ID_DRINK_EXT)); //simulovane naskenovani pomoci cudlu
         findViewById(R.id.fork).setOnClickListener(v -> barcodeAction(ID_FOOD)); //simulovane naskenovani pomoci cudlu
         findViewById(R.id.show).setOnClickListener(v -> barcodeAction(ID_SHOW)); //simulovane naskenovani pomoci cudlu
+        findViewById(R.id.show).setOnLongClickListener(v -> barcodeActionBoolean(ID_ALLOW_WEB_ACCESS)); //simulovane naskenovani pomoci cudlu
         findViewById(R.id.buyFood).setOnClickListener(v -> barcodeAction(ID_BUY_FOOD)); //simulovane naskenovani pomoci cudlu
         findViewById(R.id.buyFoodUndo).setOnClickListener(v -> barcodeAction(ID_BUY_FOOD_UNDO)); //simulovane naskenovani pomoci cudlu
         findViewById(R.id.storeBottle).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE)); //simulovane naskenovani pomoci cudlu
@@ -294,10 +336,11 @@ public class MainActivity extends RxLifecycleActivity {
         setExtendedMode(SetupActivity.getExtmode(getSharedPreferences()));
     }
 
-    private void startScan(int mode) {
+    private void startScan(int mode, String msg) {
+        if (msg==null) msg=getResources().getString(R.string.scan_a_barcode); //kdyz neni, dame universalni
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setPrompt(getResources().getString(R.string.scan_a_barcode));
+        integrator.setPrompt(msg);
         integrator.setCameraId(SetupActivity.getCameraId(getSharedPreferences()));  // Use a specific camera of the device
         integrator.setTimeout(SetupActivity.getTimeout(getSharedPreferences())); //jakej to bude mit timeoutek
         integrator.setBeepEnabled(false);
@@ -326,6 +369,12 @@ public class MainActivity extends RxLifecycleActivity {
                     break;
                 case SCANNER_MODE_STORE_BOTTLE_UNDO:
                     showError("Delame ze rusime flasku "+result.getContents());
+                    break;
+                case SCANNER_MODE_HALF:
+                    showError("Pulsklenice "+result.getContents());
+                    break;
+                case SCANNER_MODE_BOTTLE:
+                    showError("Cela flaska "+result.getContents());
                     break;
                 default:
                     showError("Unknown scanner mode "+mode);

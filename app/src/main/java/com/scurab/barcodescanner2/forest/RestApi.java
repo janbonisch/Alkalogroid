@@ -31,7 +31,9 @@ public interface RestApi {
     @POST("UserDevices")
     Observable<User> registrerDevice(@Body UserDevices data);
 
+    @POST("Users/AllowWebAccess/{emai}") //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/Users/AllowWebAccess/<imei>
+    Observable<User> AllowWebAccess(@Path("emai") String den);
+
     @DELETE("UserDevices/{emai}")
     Observable<Response<Void>> unregistrerDevice(@Path("emai") String emai);
-
 }

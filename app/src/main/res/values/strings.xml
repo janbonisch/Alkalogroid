@@ -34,6 +34,11 @@
     <string name="unregisterError">Chyba při rušení registrace</string>
     <string name="title_activity_log">log</string>
     <string name="scan_a_barcode">Načtěte čárový kód</string>
+    <string name="drink_ext_title">Jiná činnost</string>
+    <string name="drink_ext_half">Půlsklenka</string>
+    <string name="drink_ext_bottle">Celá lahev</string>
+    <string name="allowWebAccessOk">Vstup do webového rozhraní povolen.</string>
+    <string name="allowWebAccessError">Chyba při povolování webového rozhraní.</string>
 
     <string name="large_text">
         "Material is the metaphor.\n\n"
