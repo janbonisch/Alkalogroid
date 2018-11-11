@@ -17,6 +17,9 @@ import android.view.View;
 
 import com.scurab.barcodescanner2.base.DayInfo;
 import com.scurab.barcodescanner2.base.RxLifecycleActivity;
+import com.scurab.barcodescanner2.forest.ItemLogFood;
+import com.scurab.barcodescanner2.forest.ItemdView;
+import com.scurab.barcodescanner2.forest.ItemfView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,16 +31,6 @@ public class ListActivity extends RxLifecycleActivity {
 
     private RecyclerView mRecyclerView;
     private View mProgressBar;
-    private DayInfo dayInfo;
-
-    //lina inicializace informaci o dni
-    private DayInfo getDayInfo() {
-        if (dayInfo==null) {
-            Intent intent = getIntent();
-            DayInfo dayInfo = (DayInfo) intent.getSerializableExtra(DayInfo.ID);
-        }
-        return dayInfo;
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("CheckResult")
@@ -52,25 +45,24 @@ public class ListActivity extends RxLifecycleActivity {
         ListAdapter adapter = new ListAdapter();
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL){{
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL) {{
             Resources resources = getResources();
             Drawable drawable = resources.getDrawable(R.drawable.divider_black);
             setDrawable(drawable);
         }});
-
-        Observable
-                .fromCallable(() -> {
-                    List<ListAdapter.ChlastItem> items = new ArrayList<>();
-                    for (int i = 0, n = 100; i < n; i++) {
-                        items.add(new ListAdapter.ChlastItem(
-                                System.currentTimeMillis() - (86400_000 * i),
-                                "Pifo numero:" + (i + 1),
-                                System.nanoTime() % 1000L / 10.));
-                    }
-                    return items;
-                })
+        Observable.fromCallable(() -> {
+            Intent intent = getIntent(); //potrbujeme intent
+            DayInfo di = (DayInfo) intent.getSerializableExtra(DayInfo.ID); //pres extra si vytahneme odeslana data
+            List items = new ArrayList(); //stvorim novy list
+            if (di != null) { //ochrana proti totalni blbosti
+                for (ItemdView x : di.drinks) items.add(x); //ladujeme chlast
+                for (ItemLogFood x : di.food) items.add(x); //ladujeme zradlo
+            }
+            //TODO: casem mozna doladujeme nejakou sumu nebo co ja vim za dalsi statistiky
+            return items;
+        })
                 .compose(common())
-                .subscribe(chlastItems -> adapter.setItems(chlastItems),
+                .subscribe(items -> adapter.setItems(items),
                         throwable -> showError(throwable));
     }
 

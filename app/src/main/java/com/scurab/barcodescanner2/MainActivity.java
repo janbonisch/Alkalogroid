@@ -83,6 +83,15 @@ public class MainActivity extends RxLifecycleActivity {
     private View progressBarContainer;
     private SharedPreferences preferences;
 
+    //ladici datum, kdy se neco delo
+    private Calendar debugDate() {
+        Calendar c=Calendar.getInstance();
+        c.set(Calendar.YEAR,2018);
+        c.set(Calendar.MONTH,10);
+        c.set(Calendar.DAY_OF_MONTH,5);
+        return c;
+    }
+    
     private String getImei() {
         if (imei == null) { //lina inicializace
             String idStr = Utils.getHwId(this); //vyrobime textovou identifikaci stroje
@@ -157,6 +166,10 @@ public class MainActivity extends RxLifecycleActivity {
             di.drinks=drinks; //do ktery to budu skladak
             getRestApi().getCondsF(getImei(),date4rest(c)).compose(common()).subscribe(foods -> { //provedem dotaz na zkonzumovany jidlo
                 di.food=foods; //ulozime
+                if (di.isEmpty()) {
+                    onError.accept(new Exception("Tento den se nic nedělo."));
+                    return;
+                }
                 onNext.accept(di); //a predhodime to konzumentovi onNext
             }, err -> onError.accept(err)); //chubu jen prehodime dodanemu konzumentovi
         }, err -> onError.accept(err)); //chubu jen prehodime dodanemu konzumentovi
@@ -264,38 +277,20 @@ public class MainActivity extends RxLifecycleActivity {
     }
 
     private void simpleLog() {
-        Calendar c=Calendar.getInstance();
-        c.set(Calendar.YEAR,2018);
-        c.set(Calendar.MONTH,10);
-        c.set(Calendar.DAY_OF_MONTH,5);
-        System.out.println(c);
-        getDayInfo(c,dayInfo -> {
+        getDayInfo(dayInfo -> {
             showOk(getResources().getString(R.string.simpleLogTitle),String.format(getResources().getString(R.string.simpleLogText),dayInfo.drinks.length,dayInfo.food.length));
         }, throwable -> {
-            showError(throwable);
+            showError(getResources().getString(R.string.logError),throwable);
         });
     }
 
     private void extLog() {
-        Calendar c=Calendar.getInstance();
-        c.set(Calendar.YEAR,2018);
-        c.set(Calendar.MONTH,10);
-        c.set(Calendar.DAY_OF_MONTH,5);
-        System.out.println(c);
-        getDayInfo(c,dayInfo -> {
-            Intent intent = new Intent(this, ListActivity.class);
-            intent.putExtra(DayInfo.ID, dayInfo);
-            /*
-            ByteArrayOutputStream bas = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bas);
-            oos.writeObject(dayInfo);
-            intent.putExtra("xxxx",bas.toByteArray());
-            oos.close();
-            bas.close();
-            */
-            startActivity(intent);
-        }, throwable -> {
-            showError(throwable);
+        getDayInfo(dayInfo -> { //natankujeme informace o dni
+            Intent intent = new Intent(this, ListActivity.class); //pripravime intent
+            intent.putExtra(DayInfo.ID, dayInfo); //do nej napereme nacteny data
+            startActivity(intent); //a jedem s medem
+        }, throwable -> { //nejak to nedopadlo
+            showError(getResources().getString(R.string.logError),throwable);
         });
 
     }

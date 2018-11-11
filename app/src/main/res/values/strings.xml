@@ -13,7 +13,9 @@
     <string name="barcode_bad_format">Unknown barcode format %s</string>
     <string name="barcode_unknown_number">Unknown barcode value %d</string>
     <string name="food_select">Vyberte datum</string>
-    <string name="food_select_date_format">d.M.yyyy hh:mm</string>
+    <string name="date_format">d.M.yyyy</string>
+    <string name="time_format">hh:mm</string>
+    <string name="datetime_format">d.M.yyyy hh:mm</string>
     <string name="error">chyba</string>
     <string name="error_accept">Beru na vědomí</string>
     <string name="barcode_timeout">Timeout čtečky čárového kódu.</string>
@@ -43,6 +45,10 @@
     <string name="allowWebAccessError">Chyba při povolování webového rozhraní.</string>
     <string name="simpleLogTitle">Aktuální spotřeba</string>
     <string name="simpleLogText">skleničky : %d\njídlo : %d</string>
+    <string name="logUnknownItemLine1">neznámá</string>
+    <string name="logUnknownItemLine2">položka</string>
+    <string name="logFood">Občerstvení</string>
+    <string name="logError">Chyba při načítání záznamů o konzumaci.</string>
 
     <string name="large_text">
         "Material is the metaphor.\n\n"

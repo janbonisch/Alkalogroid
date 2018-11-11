@@ -18,7 +18,7 @@ public class ItemdView implements Serializable {
     // objem
     public double Volume;
     // cena
-    public int ConsPrice;
+    public double ConsPrice;
     // konzument
     public String Username;
     // Zkonzumováno kdy

@@ -12,7 +12,7 @@ public class ItemfView implements Serializable {
     // naskladnil - jméno
     public String DisplayName;
     // cena
-    public Double Price;
+    public double Price;
     // datum naskladneni
     public Date DtInsert;
     // počet konzumujících
