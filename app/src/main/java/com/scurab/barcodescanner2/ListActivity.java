@@ -1,6 +1,7 @@
 package com.scurab.barcodescanner2;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -14,6 +15,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.scurab.barcodescanner2.base.DayInfo;
 import com.scurab.barcodescanner2.base.RxLifecycleActivity;
 
 import java.util.ArrayList;
@@ -26,6 +28,16 @@ public class ListActivity extends RxLifecycleActivity {
 
     private RecyclerView mRecyclerView;
     private View mProgressBar;
+    private DayInfo dayInfo;
+
+    //lina inicializace informaci o dni
+    private DayInfo getDayInfo() {
+        if (dayInfo==null) {
+            Intent intent = getIntent();
+            DayInfo dayInfo = (DayInfo) intent.getSerializableExtra(DayInfo.ID);
+        }
+        return dayInfo;
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("CheckResult")

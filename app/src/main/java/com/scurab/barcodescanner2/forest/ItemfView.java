@@ -1,10 +1,10 @@
 package com.scurab.barcodescanner2.forest;
 
+import java.io.Serializable;
 import java.sql.Date;
-import java.util.Calendar;
 
-// Naskladněné jídlo - přehled
-public class ItemfView {
+// Jídlo - přehled
+public class ItemfView implements Serializable {
     // key
     public int ItemfID;
     // naskladnil

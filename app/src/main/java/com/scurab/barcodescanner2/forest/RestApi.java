@@ -36,4 +36,11 @@ public interface RestApi {
 
     @DELETE("UserDevices/{emai}")
     Observable<Response<Void>> unregistrerDevice(@Path("emai") String emai);
+
+    @GET("ConsdViews/GetForImeiAndDay/{emai}/{day}") //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/ConsdViews/GetForImeiAndDay/fea74c71e596f5469527586b4f67f5bbeb15d52739c12ea03a0c4a85230219c3/2018-11-5
+    Observable<ItemdView[]> getCondsD(@Path("emai") String emai, @Path("day") String den);
+
+    @GET("ConsfViews/GetForImeiAndDay/{emai}/{day}") //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/ConsfViews/GetForImeiAndDay/fea74c71e596f5469527586b4f67f5bbeb15d52739c12ea03a0c4a85230219c3/2018-11-5
+    Observable<ItemfView[]> getCondsF(@Path("emai") String emai, @Path("day") String den);
+
 }

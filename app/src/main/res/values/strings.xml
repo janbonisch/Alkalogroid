@@ -6,13 +6,14 @@
     <string name="title_activity_setup">Setup</string>
     <string name="apply">Apply</string>
     <string name="service_url">Service URL</string>
-    <string name="canceled">Canceled</string>
-    <string name="barcode_scan">Scan a barcode</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Zrušit</string>
+    <string name="canceled">Zrušeno</string>
+    <string name="barcode_scan">Načti čárovž kód</string>
     <string name="barcode_bad_format">Unknown barcode format %s</string>
     <string name="barcode_unknown_number">Unknown barcode value %d</string>
-    <string name="food_select">Select a date</string>
+    <string name="food_select">Vyberte datum</string>
     <string name="food_select_date_format">d.M.yyyy hh:mm</string>
-    <string name="ok">OK</string>
     <string name="error">chyba</string>
     <string name="error_accept">Beru na vědomí</string>
     <string name="barcode_timeout">Timeout čtečky čárového kódu.</string>
@@ -34,11 +35,14 @@
     <string name="unregisterError">Chyba při rušení registrace</string>
     <string name="title_activity_log">log</string>
     <string name="scan_a_barcode">Načtěte čárový kód</string>
-    <string name="drink_ext_title">Jiná činnost</string>
-    <string name="drink_ext_half">Půlsklenka</string>
-    <string name="drink_ext_bottle">Celá lahev</string>
+    <string name="ext_menu_title">Jiná činnost</string>
+    <string name="drink_half">Půlsklenka</string>
+    <string name="drink_bottle">Celá lahev</string>
+    <string name="enable_web">Povolit webové rozhraní</string>
     <string name="allowWebAccessOk">Vstup do webového rozhraní povolen.</string>
     <string name="allowWebAccessError">Chyba při povolování webového rozhraní.</string>
+    <string name="simpleLogTitle">Aktuální spotřeba</string>
+    <string name="simpleLogText">skleničky : %d\njídlo : %d</string>
 
     <string name="large_text">
         "Material is the metaphor.\n\n"

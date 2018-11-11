@@ -47,6 +47,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ItemViewHolder
     }
 
     public void setItems(List<ChlastItem> items) {
+
         mItems.clear();
         mItems.addAll(items);
         notifyDataSetChanged();

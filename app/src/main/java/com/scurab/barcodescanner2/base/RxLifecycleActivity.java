@@ -11,11 +11,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.scurab.barcodescanner2.R;
+import com.scurab.barcodescanner2.forest.ItemdView;
+import com.scurab.barcodescanner2.forest.ItemfView;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.trello.rxlifecycle2.LifecycleTransformer;
 import com.trello.rxlifecycle2.RxLifecycle;
 import com.trello.rxlifecycle2.android.ActivityEvent;
 import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
+
+import java.io.Serializable;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableTransformer;
@@ -109,13 +113,19 @@ public abstract class RxLifecycleActivity extends AppCompatActivity implements L
 
     //Toast.makeText(this, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
     protected void showOk(String msg) {
+        showOk(getResources().getString(R.string.showOkTittle),msg);
+    }
+
+    //Toast.makeText(this, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
+    protected void showOk(String title, String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getResources().getString(R.string.showOkTittle)); //titulek a zprava
+        builder.setTitle(title); //titulek a zprava
         builder.setMessage(msg);
         builder.setPositiveButton(getResources().getString(R.string.ok),null);
         AlertDialog alert = builder.create();
         alert.show();
     }
+
 
     //Zobrazi chybu
     protected void showError(String msg) {
@@ -154,6 +164,5 @@ public abstract class RxLifecycleActivity extends AppCompatActivity implements L
         }
         showError(msg); //ukaz chybu
     }
-
 
 }
