@@ -2,7 +2,9 @@ package com.scurab.barcodescanner2;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -22,6 +24,7 @@ public class SetupActivity extends AppCompatActivity {
     //
 
     public static final int ACTIVITY_RESULT_REGISTER =0x4574;
+    public static final int ACTIVITY_RESULT_UPDATE =0x3580;
 
     public static final String PREFS_NAME = "preferences";
     public static final int PREFS_MODE = Context.MODE_PRIVATE;
@@ -102,6 +105,12 @@ public class SetupActivity extends AppCompatActivity {
         ((EditText) findViewById(R.id.connection_string)).setText(getServiceUrl(prefs)); //url
         ((EditText) findViewById(R.id.barcode_timeout)).setText(String.valueOf(getTimeout(prefs))); //timeoutu
         ((EditText) findViewById(R.id.camera_id)).setText(String.valueOf(getCameraId(prefs))); //editor kamery
+        //cudl update
+        ((Button) findViewById(R.id.update)).setOnClickListener(v -> { //po klofnuti na cudl
+            storeData(); //ulozime novy data
+            setResult(ACTIVITY_RESULT_UPDATE); //rikam ze se chce update
+            this.finish(); //a koncime
+        });
         //cudl aplikujici zmeny
         ((Button) findViewById(R.id.apply)).setOnClickListener(v -> { //po klofnuti na cudl
             storeData(); //ulozime novy data
