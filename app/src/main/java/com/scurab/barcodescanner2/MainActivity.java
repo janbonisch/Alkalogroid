@@ -47,7 +47,6 @@ import static retrofit2.converter.gson.GsonConverterFactory.create;
 
 public class MainActivity extends RxLifecycleActivity {
 
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("hh:MM ", Locale.getDefault());
     private static final int ID_EXTRAS = 99000000; //extra kody
     private static final int ID_EXT_MODE = ID_EXTRAS + 0; //logovani jidla
     private static final int ID_EXT_MODE_END = ID_EXTRAS + 1; //logovani jidla
@@ -154,10 +153,11 @@ public class MainActivity extends RxLifecycleActivity {
 
     //prevede seznam jidel na retezce
     private String[] cosfToStrings(ItemfView[] items) {
+        SimpleDateFormat fc = new SimpleDateFormat("dd.MM.yyyy ", Locale.getDefault());
         int len = items.length; //kolik toho bude
         String[] choices = new String[len]; //vyrobime pole
         for (int i = 0; i < len; i++) { //a plnime datama
-            choices[i] = (SIMPLE_DATE_FORMAT.format(items[i].DtInsert)) + items[i].Username; //naformatujeme do lidskeho tvaru
+            choices[i] = (fc.format(items[i].DtInsert)) + items[i].Username; //naformatujeme do lidskeho tvaru
         }
         return choices;
     }
@@ -237,6 +237,7 @@ public class MainActivity extends RxLifecycleActivity {
                 .url(getResources().getString(R.string.updateFileUrl)) //do nej naperu cestu k souboru.
                 .build(); //hotovo
         OkHttpClient okHttpClient = new OkHttpClient(); //stvorim klienata
+        getProgressBarContainer().setVisibility(View.VISIBLE); //ukaz progress
         okHttpClient
                 .newCall(request) //tomu naperu pozadavek
                 .enqueue(new Callback() { //a jedem s medem. Az to bude, tak callback
@@ -244,6 +245,7 @@ public class MainActivity extends RxLifecycleActivity {
                     public void onFailure(Call call, IOException e) { //nejak to nedopadlo
                         runOnUiThread( () -> {
                             if(!isFinishing()) {
+                                getProgressBarContainer().setVisibility(View.GONE); //schovej progress
                                 showError(getResources().getString(R.string.update), e);
                             }
                         });
@@ -253,6 +255,7 @@ public class MainActivity extends RxLifecycleActivity {
                     public void onResponse(Call call, Response response) throws IOException { //huraaa
                         runOnUiThread( () -> {
                             if(!isFinishing()) {
+                                getProgressBarContainer().setVisibility(View.GONE); //schovej progress
                                 try { //co se muze, to se podela, takze odlov problemu
                                     if (response.code()!=200) {
                                         throw new Exception(response.message());
