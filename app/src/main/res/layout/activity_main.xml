@@ -27,6 +27,12 @@
             android:cropToPadding="true"
             app:srcCompat="@drawable/wine_glass_512" />
 
+        <TextView
+            android:id="@+id/smalllog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

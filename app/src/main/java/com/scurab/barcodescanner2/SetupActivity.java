@@ -25,6 +25,8 @@ public class SetupActivity extends AppCompatActivity {
 
     public static final int ACTIVITY_RESULT_REGISTER =0x4574;
     public static final int ACTIVITY_RESULT_UPDATE =0x3580;
+    public static final int ACTIVITY_RESULT_ABOUT =0x1234;
+    public static final int ACTIVITY_RESULT_ENABLEWEB=0x4321;
 
     public static final String PREFS_NAME = "preferences";
     public static final int PREFS_MODE = Context.MODE_PRIVATE;
@@ -105,10 +107,22 @@ public class SetupActivity extends AppCompatActivity {
         ((EditText) findViewById(R.id.connection_string)).setText(getServiceUrl(prefs)); //url
         ((EditText) findViewById(R.id.barcode_timeout)).setText(String.valueOf(getTimeout(prefs))); //timeoutu
         ((EditText) findViewById(R.id.camera_id)).setText(String.valueOf(getCameraId(prefs))); //editor kamery
+        //cudl about
+        ((Button) findViewById(R.id.about)).setOnClickListener(v -> { //po klofnuti na cudl
+            storeData(); //ulozime novy data
+            setResult(ACTIVITY_RESULT_ABOUT); //rikam ze se chce update
+            this.finish(); //a koncime
+        });
         //cudl update
         ((Button) findViewById(R.id.update)).setOnClickListener(v -> { //po klofnuti na cudl
             storeData(); //ulozime novy data
             setResult(ACTIVITY_RESULT_UPDATE); //rikam ze se chce update
+            this.finish(); //a koncime
+        });
+        //cudl enable web
+        ((Button) findViewById(R.id.enableweb)).setOnClickListener(v -> { //po klofnuti na cudl
+            storeData(); //ulozime novy data
+            setResult(ACTIVITY_RESULT_ENABLEWEB); //rikam ze se chce update
             this.finish(); //a koncime
         });
         //cudl aplikujici zmeny

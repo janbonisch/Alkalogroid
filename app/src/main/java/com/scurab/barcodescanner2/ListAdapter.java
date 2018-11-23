@@ -9,11 +9,9 @@ import android.widget.TextView;
 
 import com.scurab.barcodescanner2.forest.ItemLogFood;
 import com.scurab.barcodescanner2.forest.ItemdView;
-import com.scurab.barcodescanner2.forest.ItemfView;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -66,15 +64,15 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ItemViewHolder
             } else if (oi instanceof ItemLogFood) { //pokud je to jidlo
                 ItemLogFood item = (ItemLogFood) oi;
                 setHolderDate(holder,item.DtCons);
-                holder.description.setText(holder.itemView.getResources().getString(R.string.logFood)); //tak to dame jako nazev polozky
+                holder.description.setText(holder.itemView.getResources().getString(R.string.log_food)); //tak to dame jako nazev polozky
                 holder.price.setText(mMoneyFormat.format(item.ConsPrice));
                 return;
             } else { //ostatni neumime,
                 msg = oi.toString(); //tak se z toho zkusime vylhat vseobjimajicim tostring
             }
         }
-        holder.date.setText(holder.itemView.getResources().getString(R.string.logUnknownItemLine1));
-        holder.time.setText(holder.itemView.getResources().getString(R.string.logUnknownItemLine2));
+        holder.date.setText(holder.itemView.getResources().getString(R.string.log_unknown_item_line_1));
+        holder.time.setText(holder.itemView.getResources().getString(R.string.log_unknown_item_line_2));
         holder.description.setText(msg);
         holder.price.setText("");
     }

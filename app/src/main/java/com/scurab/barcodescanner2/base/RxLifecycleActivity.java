@@ -11,15 +11,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.scurab.barcodescanner2.R;
-import com.scurab.barcodescanner2.forest.ItemdView;
-import com.scurab.barcodescanner2.forest.ItemfView;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.trello.rxlifecycle2.LifecycleTransformer;
 import com.trello.rxlifecycle2.RxLifecycle;
 import com.trello.rxlifecycle2.android.ActivityEvent;
 import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
-
-import java.io.Serializable;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableTransformer;
@@ -113,7 +109,7 @@ public abstract class RxLifecycleActivity extends AppCompatActivity implements L
 
     //Toast.makeText(this, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo
     protected void showOk(String msg) {
-        showOk(getResources().getString(R.string.showOkTittle),msg);
+        showOk(getResources().getString(R.string.show_ok_tittle),msg);
     }
 
     //Toast.makeText(this, msg, Toast.LENGTH_LONG).show(); //zobrazime uzivateli, co se stalo

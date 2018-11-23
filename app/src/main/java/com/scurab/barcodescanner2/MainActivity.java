@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -84,6 +85,7 @@ public class MainActivity extends RxLifecycleActivity {
     private RestApi restApi;
     private View progressBarContainer;
     private SharedPreferences preferences;
+    private DayInfo dayInfo;
 
     //ladici datum, kdy se neco delo
     private Calendar debugDate() {
@@ -143,12 +145,16 @@ public class MainActivity extends RxLifecycleActivity {
         return c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1) + "-" + c.get(Calendar.DAY_OF_MONTH);
     }
 
+
     //Muzeme vesele logovat, protoze zname itemfID
     private void logConsf(int itemfID) {
         Consfs c = new Consfs();
         c.Imei = getImei(); //kdo jsem
         c.ItemfID = itemfID; //k jakymu jidlu se hlasim
-        getRestApi().consfs(c).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.logConsfOk)), err -> showError(getResources().getString(R.string.logConsfError), err));
+        getRestApi().consfs(c).compose(common()).subscribe(r -> {
+            showOk(getResources().getString(R.string.log_consf_ok));
+            updateDayInfo();
+        }, err -> showError(getResources().getString(R.string.log_consf_error), err));
     }
 
     //prevede seznam jidel na retezce
@@ -173,6 +179,7 @@ public class MainActivity extends RxLifecycleActivity {
                     onError.accept(new Exception("Tento den se nic nedělo."));
                     return;
                 }
+                setDayInfo(di); //hodime to i ostatnim castem, se muze hodit
                 onNext.accept(di); //a predhodime to konzumentovi onNext
             }, err -> onError.accept(err)); //chubu jen prehodime dodanemu konzumentovi
         }, err -> onError.accept(err)); //chubu jen prehodime dodanemu konzumentovi
@@ -188,12 +195,15 @@ public class MainActivity extends RxLifecycleActivity {
         Consds c = new Consds();
         c.Imei = getImei();
         c.ItemdID = itemId;
-        getRestApi().consds(c).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.logGlassOk)), err -> showError(getResources().getString(R.string.logGlassError), err));
+        getRestApi().consds(c).compose(common()).subscribe(r -> {
+            showOk(getResources().getString(R.string.log_glass_ok));
+            updateDayInfo();
+        }, err -> showError(getResources().getString(R.string.log_glass_error), err));
     }
 
     //Povoleni pristupu na web
     private void allowWebAccess() {
-        getRestApi().AllowWebAccess(getImei()).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.allowWebAccessOk)), err -> showError(getResources().getString(R.string.allowWebAccessError), err));
+        getRestApi().AllowWebAccess(getImei()).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.allow_web_access_ok)), err -> showError(getResources().getString(R.string.allow_web_access_error), err));
     }
 
     //registrace telefounu
@@ -201,12 +211,12 @@ public class MainActivity extends RxLifecycleActivity {
         UserDevices ud = new UserDevices();
         ud.Username = username;
         ud.Imei = getImei();
-        getRestApi().registrerDevice(ud).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.registerOk)), err -> showError(getResources().getString(R.string.logGlassError), err));
+        getRestApi().registrerDevice(ud).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.register_ok)), err -> showError(getResources().getString(R.string.register_error), err));
     }
 
     //odregistrovani po predeslem registrovani uzivatelskeho jmena
     private void unregister() {
-        getRestApi().unregistrerDevice(getImei()).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.unregisterOk)), err -> showError(getResources().getString(R.string.unregisterError), err));
+        getRestApi().unregistrerDevice(getImei()).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.unregister_ok)), err -> showError(getResources().getString(R.string.unregister_error), err));
     }
 
     //spusteni aktualiace apky
@@ -221,10 +231,14 @@ public class MainActivity extends RxLifecycleActivity {
     //
     //
 
+    private void about() {
+        showOk(getResources().getString(R.string.app_name),getResources().getString(R.string.app_version));
+    }
+
     private void updateConfirm(String url) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this); //zrobime buildera dialogu
         builder.setTitle(R.string.update); //nejakej pokec
-        builder.setMessage(getResources().getString(R.string.updateInfo)); //nadpis je aktualizace
+        builder.setMessage(getResources().getString(R.string.update_info)); //nadpis je aktualizace
         builder.setPositiveButton(R.string.update, (dialog, which) -> update(url)); //jdem do aktualizace
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> {}); //nechceme aktualizovat
         AlertDialog dialog = builder.create(); //vyrobime dialog
@@ -234,7 +248,7 @@ public class MainActivity extends RxLifecycleActivity {
     //pokus o aktualizaci
     private void update() {
         Request request = new Request.Builder() //stvorime pozadavek
-                .url(getResources().getString(R.string.updateFileUrl)) //do nej naperu cestu k souboru.
+                .url(getResources().getString(R.string.update_file_url)) //do nej naperu cestu k souboru.
                 .build(); //hotovo
         OkHttpClient okHttpClient = new OkHttpClient(); //stvorim klienata
         getProgressBarContainer().setVisibility(View.VISIBLE); //ukaz progress
@@ -271,7 +285,7 @@ public class MainActivity extends RxLifecycleActivity {
                                     } while (url.length() < 1); //prazdny radky zahazujeme
                                     br.close(); //rusime ctecku
                                     if (version.trim().equalsIgnoreCase(getResources().getString(R.string.app_version))) { //pokud tuhle verzi mame
-                                        showOk(getResources().getString(R.string.updateActual)); //tak to nahlasim a muzeme pomalu koncit
+                                        showOk(getResources().getString(R.string.update_actual)); //tak to nahlasim a muzeme pomalu koncit
                                     } else { //asi mame neco lepsiho
                                         updateConfirm(url);
                                     }
@@ -291,7 +305,6 @@ public class MainActivity extends RxLifecycleActivity {
         String[] items = {
                 getResources().getString(R.string.drink_half),
                 getResources().getString(R.string.drink_bottle),
-                getResources().getString(R.string.enable_web),
         };
         builder.setSingleChoiceItems(items, 0, (dialog, which) -> { //poslouchadlo na klikanec
             dialog.dismiss();
@@ -300,8 +313,6 @@ public class MainActivity extends RxLifecycleActivity {
                 startScan(SCANNER_MODE_HALF, what); //spoustime skenovani
             } else if (what.equalsIgnoreCase(getResources().getString(R.string.drink_bottle))) {
                 startScan(SCANNER_MODE_BOTTLE, what); //spoustime skenovani
-            } else if (what.equalsIgnoreCase(getResources().getString(R.string.enable_web))) {
-                barcodeAction(ID_ALLOW_WEB_ACCESS);
             }
         });
         builder.setNegativeButton(getResources().getString(R.string.cancel), null);
@@ -314,7 +325,7 @@ public class MainActivity extends RxLifecycleActivity {
         getRestApi().GetForDayInserted(date4rest()).compose(common()).subscribe(items -> { //nejprve si zjistime, k jakymu jidlu se budeme prihlasovat
             int len = items.length; //kolik je polozek
             if (len < 1) { //nejsou zadny polozky
-                showError(getResources().getString(R.string.logConsfNothink));
+                showError(getResources().getString(R.string.log_consf_nothink));
                 return; //pokud neni z ceho vybirat, tak nic
                 /* i jednojidlo se bude vybirat
             } else if (len == 1) { //pokud mame prave jednu polozku
@@ -322,7 +333,7 @@ public class MainActivity extends RxLifecycleActivity {
                 */
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this); //zrobime buildera dialogu
-                builder.setTitle(getResources().getString(R.string.logConsfSelect)); //titulek a zprava
+                builder.setTitle(getResources().getString(R.string.log_consf_select)); //titulek a zprava
                 builder.setSingleChoiceItems(cosfToStrings(items), 0, (dialog, which) -> { //poslouchadlo na klikanec
                     dialog.dismiss();
                     logConsf(items[which].ItemfID); //a to je von, trada logovat
@@ -331,7 +342,7 @@ public class MainActivity extends RxLifecycleActivity {
                 AlertDialog dialog = builder.create(); //vyrobime dialog
                 dialog.show(); //a zobrazim to
             }
-        }, err -> showError(getResources().getString(R.string.logConsfError), err));
+        }, err -> showError(getResources().getString(R.string.log_consf_error), err));
     }
 
     //registrace se zadanim uzivatelskeho jmena
@@ -350,21 +361,22 @@ public class MainActivity extends RxLifecycleActivity {
 
     private void simpleLog() {
         getDayInfo(dayInfo -> {
-            showOk(getResources().getString(R.string.simpleLogTitle), String.format(getResources().getString(R.string.simpleLogText), dayInfo.drinks.length, dayInfo.food.length));
+            showOk(getResources().getString(R.string.simple_log_title), String.format(getResources().getString(R.string.simple_log_text), dayInfo.drinks.length, dayInfo.food.length));
+            setDayInfo(dayInfo); //schovam si to
         }, throwable -> {
-            showError(getResources().getString(R.string.logError), throwable);
+            showError(getResources().getString(R.string.log_error), throwable);
         });
     }
 
     private void extLog() {
         getDayInfo(dayInfo -> { //natankujeme informace o dni
+            setDayInfo(dayInfo); //schovam si to
             Intent intent = new Intent(this, ListActivity.class); //pripravime intent
             intent.putExtra(DayInfo.ID, dayInfo); //do nej napereme nacteny data
             startActivity(intent); //a jedem s medem
         }, throwable -> { //nejak to nedopadlo
-            showError(getResources().getString(R.string.logError), throwable);
+            showError(getResources().getString(R.string.log_error), throwable);
         });
-
     }
 
     //provedeni akce podle caroveho kodu. Sem jsou smerovany i prikazy z UI
@@ -451,6 +463,22 @@ public class MainActivity extends RxLifecycleActivity {
         findViewById(R.id.storeBottleUndo).setVisibility(visibility);
     }
 
+    private void updateDayInfo() {
+        getDayInfo(dayInfo ->  setDayInfo(dayInfo) , throwable -> {});//provedeme cteni dayinfo a kdyz to klapne, tak to nastavim
+    }
+
+    private void setDayInfo(DayInfo di) {
+        this.dayInfo=di; //si to schovam napotom
+        if ((di==null)||(di.isEmpty())) { //necheme day info
+            findViewById(R.id.smalllog).setVisibility(View.GONE); //chci to vided
+        } else { //chceme day info
+            String msg=String.format(getResources().getString(R.string.simple_log_text), dayInfo.drinks.length, dayInfo.food.length); //hlaska do vokynka
+            msg=msg.replace("\n","  "); //vyhazime odradkovani
+            ((TextView)findViewById(R.id.smalllog)).setText(msg); //a to chci videt
+            findViewById(R.id.smalllog).setVisibility(View.VISIBLE); //chci to vided
+        }
+    }
+
     @SuppressLint("CheckResult")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -478,6 +506,7 @@ public class MainActivity extends RxLifecycleActivity {
         findViewById(R.id.storeBottle).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE));
         findViewById(R.id.storeBottleUndo).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE_UNDO));
         setExtendedMode(SetupActivity.getExtmode(getSharedPreferences()));
+        setDayInfo(this.dayInfo);
     }
 
     private void startScan(int mode, String msg) {
@@ -504,6 +533,12 @@ public class MainActivity extends RxLifecycleActivity {
                     return;
                 case SetupActivity.ACTIVITY_RESULT_UPDATE:
                     update();
+                    return;
+                case SetupActivity.ACTIVITY_RESULT_ABOUT:
+                    about();
+                    return;
+                case SetupActivity.ACTIVITY_RESULT_ENABLEWEB:
+                    allowWebAccess();
                     return;
             }
         }

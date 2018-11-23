@@ -18,6 +18,38 @@
             android:background="@color/colorPrimary"
             app:titleTextColor="@color/white" />
 
+        <Button
+            android:id="@+id/enableweb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:lineSpacingExtra="18sp"
+            android:text="@string/enable_web" />
+
+        <Button
+            android:id="@+id/register"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:lineSpacingExtra="18sp"
+            android:text="@string/register" />
+
+        <Button
+            android:id="@+id/about"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:lineSpacingExtra="18sp"
+            android:text="@string/about" />
+
+        <Button
+            android:id="@+id/update"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:lineSpacingExtra="18sp"
+            android:text="@string/update" />
+
         <TextView
             android:id="@+id/label1"
             android:layout_width="match_parent"
@@ -62,20 +94,6 @@
             android:lineSpacingExtra="18sp"
             android:text="@string/apply" />
 
-        <Button
-            android:id="@+id/register"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:lineSpacingExtra="18sp"
-            android:text="@string/register" />
-        <Button
-            android:id="@+id/update"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:lineSpacingExtra="18sp"
-            android:text="@string/update" />
 
     </LinearLayout>
 </ScrollView>
