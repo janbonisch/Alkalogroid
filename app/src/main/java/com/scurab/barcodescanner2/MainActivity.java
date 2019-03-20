@@ -14,7 +14,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -66,6 +65,7 @@ public class MainActivity extends RxLifecycleActivity {
     private static final int ID_EXT_MENU = ID_EXTRAS + 8; //extra menu
     private static final int ID_ALLOW_WEB_ACCESS = ID_EXTRAS + 9; //povolime web
     private static final int ID_LOG_EXT = ID_EXTRAS + 10; //rozsireny log
+    private static final int ID_LOG_HALP_GLASS= ID_EXTRAS + 11; //rozsireny log
     private static final int ID_WINE_BOTTLE_START = 100001; //pocatek kodu pro flasky vina
     private static final int ID_WINE_BOTTLE_END = 199999; //konec kodu pro flasky vina
     private static final String SCANNER_MODE = "scanner_mode"; //jak to prase si to ulozim do preferences, sichr je sichr
@@ -81,70 +81,6 @@ public class MainActivity extends RxLifecycleActivity {
     private static final int SCANNER_MODE_STORE_BOTTLE_UNDO = 3; //odstraneni vlozene flasky
     private static final int SCANNER_MODE_HALF = 4; //pulsklenka
     private static final int SCANNER_MODE_BOTTLE = 5; //cela flaska
-    private String imei;
-    private RestApi restApi;
-    private View progressBarContainer;
-    private SharedPreferences preferences;
-    private DayInfo dayInfo;
-
-    //ladici datum, kdy se neco delo
-    private Calendar debugDate() {
-        Calendar c = Calendar.getInstance();
-        c.set(Calendar.YEAR, 2018);
-        c.set(Calendar.MONTH, 10);
-        c.set(Calendar.DAY_OF_MONTH, 5);
-        return c;
-    }
-
-    private String getImei() {
-        if (imei == null) { //lina inicializace
-            String idStr = Utils.getHwId(this); //vyrobime textovou identifikaci stroje
-            byte[] id = Utils.str2id(idStr); //spachame identifikator
-            imei = Utils.viewID(id, (char) 0); //a udelam z toho retezec
-            Utils.log("getImei", "My IMEI " + imei);
-        }
-        return imei;
-    }
-
-    private SharedPreferences getSharedPreferences() {
-        if (preferences == null) {
-            preferences = getSharedPreferences(SetupActivity.PREFS_NAME, SetupActivity.PREFS_MODE); //zrobim preference
-        }
-        return preferences;
-    }
-
-    private RestApi getRestApi() {
-        if (restApi == null) { //lina inicializace
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .addInterceptor(loggingInterceptor)
-                    .build();
-            Gson gson = new GsonBuilder()
-                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-                    .create();
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(SetupActivity.getServiceUrl(getSharedPreferences()))
-                    .client(client)
-                    .addConverterFactory(create(gson))
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                    .build();
-            restApi = retrofit.create(RestApi.class);
-        }
-        return restApi;
-    }
-
-    //vraci aktualni datum ve spravnym formatu
-    private String date4rest() {
-        return date4rest(Calendar.getInstance());
-
-    }
-
-    //vraci datum ve spravnem formatu
-    private String date4rest(Calendar c) {
-        return c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1) + "-" + c.get(Calendar.DAY_OF_MONTH);
-    }
-
 
     //Muzeme vesele logovat, protoze zname itemfID
     private void logConsf(int itemfID) {
@@ -168,37 +104,27 @@ public class MainActivity extends RxLifecycleActivity {
         return choices;
     }
 
-    //vyrobi informaci o konkretnim dni pro aktualniho uzivatele
-    private void getDayInfo(Calendar c, Consumer<DayInfo> onNext, Consumer<? super Throwable> onError) {
-        getRestApi().getCondsD(getImei(), date4rest(c)).compose(common()).subscribe(drinks -> { //provedem dotaz na zkonzumovany chlast
-            DayInfo di = new DayInfo(); //zrobim si pomocnou tridu
-            di.drinks = drinks; //do ktery to budu skladak
-            getRestApi().getCondsF(getImei(), date4rest(c)).compose(common()).subscribe(foods -> { //provedem dotaz na zkonzumovany jidlo
-                di.food = foods; //ulozime
-                if (di.isEmpty()) {
-                    onError.accept(new Exception("Tento den se nic nedělo."));
-                    return;
-                }
-                setDayInfo(di); //hodime to i ostatnim castem, se muze hodit
-                onNext.accept(di); //a predhodime to konzumentovi onNext
-            }, err -> onError.accept(err)); //chubu jen prehodime dodanemu konzumentovi
-        }, err -> onError.accept(err)); //chubu jen prehodime dodanemu konzumentovi
-    }
 
-    //vyrobi informaci o dnesku pro aktualniho uzivatele
-    private void getDayInfo(Consumer<DayInfo> onNext, Consumer<? super Throwable> onError) {
-        getDayInfo(Calendar.getInstance(), onNext, onError);
-    }
 
     //zaznam sklenky
-    private void logGlass(int itemId) throws Exception {
-        Consds c = new Consds();
-        c.Imei = getImei();
-        c.ItemdID = itemId;
-        getRestApi().consds(c).compose(common()).subscribe(r -> {
-            showOk(getResources().getString(R.string.log_glass_ok));
-            updateDayInfo();
-        }, err -> showError(getResources().getString(R.string.log_glass_error), err));
+    private void logGlass(int itemId, double amount) throws Exception {
+        if (itemId>=0) {
+            Consds c = new Consds();
+            c.Imei = getImei();
+            c.ItemdID = itemId;
+            c.Amount=amount;
+            getRestApi().consds(c).compose(common()).subscribe(r -> {
+                showOk(getResources().getString(R.string.log_glass_ok));
+                updateDayInfo();
+            }, err -> showError(getResources().getString(R.string.log_glass_error), err));
+        }
+    }
+
+    private void logGlass(String itemId, double amount)  {
+        try {
+            logGlass(barcode2int(itemId), amount);
+        } catch (Exception e) {
+        }
     }
 
     //Povoleni pristupu na web
@@ -401,7 +327,8 @@ public class MainActivity extends RxLifecycleActivity {
                     logConsf(); //loguj jidlo
                     break;
                 case ID_STORE_BOTTLE:
-                    startScan(SCANNER_MODE_STORE_BOTTLE, "");
+                    startActivity(new Intent(this, StoreBottleActivity.class)); //a startujeme aktivitu s nastavenima
+                    //startScan(SCANNER_MODE_STORE_BOTTLE, "");
                     break;
                 case ID_STORE_BOTTLE_UNDO:
                     startScan(SCANNER_MODE_STORE_BOTTLE_UNDO, "");
@@ -422,7 +349,7 @@ public class MainActivity extends RxLifecycleActivity {
                 case ID_BUY_FOOD_UNDO:
                 default: //ostatni kody jsou jeden kus sklenice
                     if ((code >= ID_WINE_BOTTLE_START) && (code <= ID_WINE_BOTTLE_END)) {
-                        logGlass(code);
+                        logGlass(code,0.2);
                     } else {
                         showError(String.format(getResources().getString(R.string.barcode_unknown_number), code)); //zobrazim chybu
                     }
@@ -433,17 +360,23 @@ public class MainActivity extends RxLifecycleActivity {
         }
     }
 
-    //procedeni akce podle kodu v textove podobe
-    private void barcodeAction(String code) {
+    private int barcode2int(String code) {
+        int result=-1;
         if (code == null) { //neni nic
             showError(getResources().getString(R.string.barcode_error)); //pokud neni vubec nic, tak slus nahned
-            return; //slus
         }
         try {
-            barcodeAction(Integer.decode(code)); //zkusim z toho udelat numero a podle toho akce
+            result=(Integer.decode(code)); //zkusim z toho udelat numero a podle toho akce
         } catch (Exception e) { //pokud doslo k nejakemu problemu, tak hlasim, problem vznikne jen pri chybe dekodovani cisla
             showError(String.format(getResources().getString(R.string.barcode_bad_format), code)); //zobrazim chybu
         }
+        return result;
+    }
+
+    //procedeni akce podle kodu v textove podobe
+    private void barcodeAction(String code) {
+        int c=barcode2int(code); //prevedem na cislo
+        if (c>=0) barcodeAction(c);
     }
 
     private int getScannerMode() {
@@ -461,22 +394,6 @@ public class MainActivity extends RxLifecycleActivity {
         findViewById(R.id.buyFoodUndo).setVisibility(visibility);
         findViewById(R.id.storeBottle).setVisibility(visibility);
         findViewById(R.id.storeBottleUndo).setVisibility(visibility);
-    }
-
-    private void updateDayInfo() {
-        getDayInfo(dayInfo ->  setDayInfo(dayInfo) , throwable -> {});//provedeme cteni dayinfo a kdyz to klapne, tak to nastavim
-    }
-
-    private void setDayInfo(DayInfo di) {
-        this.dayInfo=di; //si to schovam napotom
-        if ((di==null)||(di.isEmpty())) { //necheme day info
-            findViewById(R.id.smalllog).setVisibility(View.GONE); //chci to vided
-        } else { //chceme day info
-            String msg=String.format(getResources().getString(R.string.simple_log_text), dayInfo.drinks.length, dayInfo.food.length); //hlaska do vokynka
-            msg=msg.replace("\n","  "); //vyhazime odradkovani
-            ((TextView)findViewById(R.id.smalllog)).setText(msg); //a to chci videt
-            findViewById(R.id.smalllog).setVisibility(View.VISIBLE); //chci to vided
-        }
     }
 
     @SuppressLint("CheckResult")
@@ -506,6 +423,7 @@ public class MainActivity extends RxLifecycleActivity {
         findViewById(R.id.storeBottle).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE));
         findViewById(R.id.storeBottleUndo).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE_UNDO));
         setExtendedMode(SetupActivity.getExtmode(getSharedPreferences()));
+        setExtendedMode(true); //TODO: ladici, vyhodit!
         setDayInfo(this.dayInfo);
     }
 
@@ -557,10 +475,10 @@ public class MainActivity extends RxLifecycleActivity {
                     showError("Delame ze rusime flasku " + result.getContents());
                     break;
                 case SCANNER_MODE_HALF:
-                    showError("Pulsklenice " + result.getContents());
+                    logGlass(result.getContents(),0.1);
                     break;
                 case SCANNER_MODE_BOTTLE:
-                    showError("Cela flaska " + result.getContents());
+                    logGlass(result.getContents(),1);
                     break;
                 default:
                     showError("Unknown scanner mode " + mode);
@@ -577,8 +495,4 @@ public class MainActivity extends RxLifecycleActivity {
         return true;
     }
 
-    @Override
-    protected View getProgressBarContainer() {
-        return progressBarContainer;
-    }
 }

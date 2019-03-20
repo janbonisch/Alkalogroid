@@ -30,7 +30,6 @@ import io.reactivex.Observable;
 public class ListActivity extends RxLifecycleActivity {
 
     private RecyclerView mRecyclerView;
-    private View mProgressBar;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("CheckResult")
@@ -40,7 +39,7 @@ public class ListActivity extends RxLifecycleActivity {
         setContentView(R.layout.activity_list);
 
         mRecyclerView = findViewById(R.id.recycler_view);
-        mProgressBar = findViewById(R.id.progress_bar_container);
+        progressBarContainer = findViewById(R.id.progress_bar_container);
 
         ListAdapter adapter = new ListAdapter();
         mRecyclerView.setAdapter(adapter);
@@ -66,8 +65,4 @@ public class ListActivity extends RxLifecycleActivity {
                         throwable -> showError(throwable));
     }
 
-    @Override
-    protected View getProgressBarContainer() {
-        return mProgressBar;
-    }
 }

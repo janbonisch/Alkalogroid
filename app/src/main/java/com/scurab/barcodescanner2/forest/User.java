@@ -10,4 +10,6 @@ public class User {
     public String DisplayName;
     // required, default 0
     public Date DtConsStart;
+
+    public Date DtAllowWebAccess;
 }

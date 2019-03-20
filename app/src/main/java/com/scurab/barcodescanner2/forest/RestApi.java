@@ -13,6 +13,15 @@ import retrofit2.http.Url;
 
 public interface RestApi {
 
+    @POST("Items") //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/Itemds
+    Observable<Empty> Itemds(@Body Itemds data);
+
+    @GET("ItemdTypes/GetForYear/{year}")   //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/ItemdTypes/GetForYear/2017
+    Observable<ItemdType[]> getItemdTypes(@Path("year") String year);
+
+    @GET("ItemdTypeYearViews")   //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/ItemdTypeYearViews
+    Observable<ItemdTypeYearViews[]> getItemdTypeYearViews();
+
     @GET("Users")   //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/Users
     Observable<User[]> getUsers();
 
