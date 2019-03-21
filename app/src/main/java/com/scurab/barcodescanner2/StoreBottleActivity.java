@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,6 +19,8 @@ import com.scurab.barcodescanner2.forest.ItemdType;
 import com.scurab.barcodescanner2.forest.ItemdTypeYearViews;
 import com.scurab.barcodescanner2.forest.Itemds;
 import com.scurab.barcodescanner2.forest.User;
+
+import java.time.Year;
 
 public class StoreBottleActivity extends RxLifecycleActivity {
     Spinner spinnerUser;
@@ -77,15 +80,11 @@ public class StoreBottleActivity extends RxLifecycleActivity {
         getRestApi().getItemdTypeYearViews().compose(common()).subscribe(vintage -> {
             boolean useDefault = this.vintage == null; //pokud tam je null, tak jsme se narodili a to si poznamename
             this.vintage = vintage; //hura nacteno
-            makeVintage(); //vopravime spinera
-            if (useDefault) { //pokud mame nastavit default
-                //TODO: dodelat nastaveni default podle konfigurace
-            }
-            //TODO: zavolat predelani seznamu flasek, bo jsme zmenili rocnik
+            makeVintage(useDefault?-1:SetupActivity.getLastBottleStorageYear(getSharedPreferences())); //vopravime spinera
         }, err -> showError(getResources().getString(R.string.store_bottle), err));
     }
 
-    private void makeVintage() {
+    private void makeVintage(int preset) {
         String items[];
         if (vintage == null) {
             setSpinnerLoading(spinnerVintage);
@@ -94,10 +93,13 @@ public class StoreBottleActivity extends RxLifecycleActivity {
         }
         items = new String[vintage.length]; //udelame pole pro jmena uzivatelu
         int ptr = 0;
+        int ppos=-1;
         for (ItemdTypeYearViews u : vintage) { //projdeme uzivatele
+            if (u.Year==preset) ppos=ptr;
             items[ptr++] = Integer.toString(u.Year); //perem je do pole
         }
         setSPinnerShow(spinnerVintage, items);
+        if (ppos>=0) spinnerVintage.setSelection(ppos);
     }
 
     private void selectVintage() {
@@ -156,6 +158,8 @@ public class StoreBottleActivity extends RxLifecycleActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_store_bottle);
+        Toolbar toolbar = findViewById(R.id.toolbar); //tady je horni radek
+        toolbar.setLogo(R.drawable.fork_truck_icon_64); //naper k tomu ikonu
         progressBarContainer = findViewById(R.id.progress_bar_container);
         spinnerUser = (Spinner) findViewById(R.id.bottle_owner);
         spinnerVintage = (Spinner) findViewById(R.id.bottle_vintage);
@@ -186,7 +190,7 @@ public class StoreBottleActivity extends RxLifecycleActivity {
             public void onNothingSelected(AdapterView<?> arg0) { /* TODO Auto-generated method stub */}
         });
         makeUsers(); //zahajime cteni uzivatelu, az se to nacte, tak se to napere do spineru
-        makeVintage();
+        makeVintage(-1);
         makeBottleType();
 
     }
@@ -210,29 +214,19 @@ public class StoreBottleActivity extends RxLifecycleActivity {
             String scan = result.getContents(); //tohle jsme nacetli
             Itemds b = new Itemds();
             try { //odchyt pruseru pri tvorbe finalniho zaznamu
-                b.ItemdID = scan; //id lahve
+                b.ItemdID = Integer.decode(scan); //id lahve
                 b.Username = getUser(spinnerUser.getSelectedItem()).Username; //ci je flaska
-                b.ItemdTypeID = getBottleType(spinnerBootleType.getSelectedItem()).Name; //typ lahve
-                //TODO: nekde musi bejt taky rok!!!
+                b.ItemdTypeID = getBottleType(spinnerBootleType.getSelectedItem()).ItemdTypeID; //typ lahve
                 b.Price = Double.parseDouble(price.getText().toString()); //cena
+                SetupActivity.setLastBottleStorageYear(getSharedPreferences(),Integer.decode(spinnerVintage.getSelectedItem().toString())); //ulozim si posledni pouzity rocnik, abych ho priste nabidl
             } catch (Exception e) { //neco se podelalo, nebudeme ukladat
-                showError(e.toString()); //nejako ukaz chybu
+                showError(getResources().getString(R.string.store_bottle)+e.toString()); //nejako ukaz chybu
                 return; //a slus
             }
-            //TODO: odeslat zaznam do dutobaze
-            /*
+            //showOk("DEBUG","\nb.ItemdID="+b.ItemdID+"\nb.Username="+b.Username+"\nb.ItemdTypeID="+b.ItemdTypeID+"\nb.Price="+b.Price );
             getRestApi().Itemds(b).compose(common()).subscribe(r -> {
                 showOk(getResources().getString(R.string.bottle_store_ok));
-                updateDayInfo();
             }, err -> showError(getResources().getString(R.string.bottle_store_err), err));
-            */
-            showOk("DEBUG",
-            "\nb.ItemdID="+b.ItemdID+
-            "\nb.Username="+b.Username+
-            "\nb.ItemdTypeID="+b.ItemdTypeID+
-            "\nb.Price="+b.Price
-            );
-
         } else { //co to sem leze za hovadiny
             //super.onActivityResult(requestCode, resultCode, data); //hodime to dal a poptakach
         }

@@ -18,7 +18,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
-            app:titleTextColor="@color/white" />
+            app:titleTextColor="@color/white"
+            app:title="@string/app_name"
+            app:logo="@drawable/fork_truck_icon_64"
+            app:titleMarginStart="30dp"/>
         <TextView
             android:id="@+id/label1"
             android:layout_width="match_parent"
@@ -55,7 +58,7 @@
             android:id="@+id/bottle_price"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text" />
+            android:inputType="number"/>
         <Button
             android:id="@+id/store_bottle"
             android:layout_width="match_parent"

@@ -13,7 +13,10 @@ import retrofit2.http.Url;
 
 public interface RestApi {
 
-    @POST("Items") //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/Itemds
+    @DELETE("Itemds/{id}") //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/Itemds/<id>
+    Observable<Response<Void>> deleteItemd(@Path("id") int id);
+
+    @POST("Itemds") //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/Itemds
     Observable<Empty> Itemds(@Body Itemds data);
 
     @GET("ItemdTypes/GetForYear/{year}")   //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/ItemdTypes/GetForYear/2017

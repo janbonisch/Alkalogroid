@@ -104,8 +104,6 @@ public class MainActivity extends RxLifecycleActivity {
         return choices;
     }
 
-
-
     //zaznam sklenky
     private void logGlass(int itemId, double amount) throws Exception {
         if (itemId>=0) {
@@ -149,6 +147,13 @@ public class MainActivity extends RxLifecycleActivity {
     private void update(String url) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.trim())); //a zkusime donutit robutka, aby to sosnul
         startActivity(intent); //trada
+    }
+
+    //Zruseni naskladneni lahve
+    private void storeBottleUndo(String sid) {
+        int id=barcode2int(sid); //prevedeme retezec na cislo
+        if (id<0) return; //pokud to nedopadlo, tak slus
+        getRestApi().deleteItemd(id).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.bottle_delete_ok)), err -> showError(getResources().getString(R.string.bottle_delete_err), err));
     }
 
     //==============================================================================================
@@ -423,7 +428,7 @@ public class MainActivity extends RxLifecycleActivity {
         findViewById(R.id.storeBottle).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE));
         findViewById(R.id.storeBottleUndo).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE_UNDO));
         setExtendedMode(SetupActivity.getExtmode(getSharedPreferences()));
-        setExtendedMode(true); //TODO: ladici, vyhodit!
+        //setExtendedMode(true);
         setDayInfo(this.dayInfo);
     }
 
@@ -468,11 +473,8 @@ public class MainActivity extends RxLifecycleActivity {
                 case SCANNER_MODE_BASE:
                     barcodeAction(result.getContents()); //zpracujeme prijaty kod
                     break;
-                case SCANNER_MODE_STORE_BOTTLE:
-                    showError("Delame ze nakladam flasku " + result.getContents());
-                    break;
                 case SCANNER_MODE_STORE_BOTTLE_UNDO:
-                    showError("Delame ze rusime flasku " + result.getContents());
+                    storeBottleUndo(result.getContents());
                     break;
                 case SCANNER_MODE_HALF:
                     logGlass(result.getContents(),0.1);

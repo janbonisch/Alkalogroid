@@ -16,8 +16,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
-            app:titleTextColor="@color/white" />
-
+            app:titleTextColor="@color/white"
+            app:title="@string/app_name"
+            app:logo="@drawable/settings_64"
+            app:titleMarginStart="30dp"/>
         <Button
             android:id="@+id/enableweb"
             android:layout_width="match_parent"

@@ -64,6 +64,9 @@
     <string name="loading">Načítám ...</string>
     <string name="bottle_store_ok">Láhev byla úspěšně naskladněna.</string>
     <string name="bottle_store_err">Chyba při naskladnění.</string>
+    <string name="bottle_delete_ok">Láhev byla odstraněna ze skladu.</string>
+    <string name="bottle_delete_err">Chyba při odstranění lahve ze skladu.</string>
+
     <!--
     <string name="large_text">
         "Material is the metaphor.\n\n"

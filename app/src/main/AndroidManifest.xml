@@ -17,19 +17,21 @@
         <activity android:name=".MainActivity" android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".SetupActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_setup"
             android:theme="@style/AppTheme" />
-
         <activity
             android:name=".ListActivity"
             android:label="@string/title_activity_log" />
-        <activity android:name=".StoreBottleActivity" />
+        <activity
+            android:name=".StoreBottleActivity"
+            android:configChanges="orientation|screenSize"
+            />
     </application>
 
 </manifest>
