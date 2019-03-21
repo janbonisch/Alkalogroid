@@ -3,19 +3,22 @@ package com.scurab.barcodescanner2;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.scurab.barcodescanner2.base.DayInfo;
@@ -23,24 +26,18 @@ import com.scurab.barcodescanner2.base.RxLifecycleActivity;
 import com.scurab.barcodescanner2.forest.Consds;
 import com.scurab.barcodescanner2.forest.Consfs;
 import com.scurab.barcodescanner2.forest.ItemfView;
-import com.scurab.barcodescanner2.forest.RestApi;
 import com.scurab.barcodescanner2.forest.UserDevices;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Locale;
 
-import io.reactivex.functions.Consumer;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import static retrofit2.converter.gson.GsonConverterFactory.create;
 
@@ -409,14 +406,16 @@ public class MainActivity extends RxLifecycleActivity {
         progressBarContainer = findViewById(R.id.progress_bar_container);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.settings) { //pokud je to klikanec na menu setting
-                restApi = null; //zahodime referenci na rest, bo to muze konfigurace zmenit, tak aby se to vyrobilo znova
-                startActivityForResult(new Intent(this, SetupActivity.class), SetupActivity.ACTIVITY_RESULT_REGISTER); //a startujeme aktivitu s nastavenima
-                return true; //nevim proc, asi ze jsem to zachytil
-            }
-            return false; //nevim proc, asi ze udalost nebyla zpracovana
-        });
+
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(item -> onMenuItemClicked(item.getItemId()));
+
+        toolbar.setOnMenuItemClickListener(item -> onMenuItemClicked(item.getItemId()));
         //posluchaci udalosti cudlu pouzivaji barcodeAction s prislusnym kodem, jak proste ;-)
         findViewById(R.id.drink).setOnClickListener(v -> startScan(SCANNER_MODE_BASE, ""));
         findViewById(R.id.drink).setOnLongClickListener(v -> barcodeActionBoolean(ID_EXT_MENU));
@@ -430,6 +429,15 @@ public class MainActivity extends RxLifecycleActivity {
         setExtendedMode(SetupActivity.getExtmode(getSharedPreferences()));
         //setExtendedMode(true);
         setDayInfo(this.dayInfo);
+    }
+
+    private boolean onMenuItemClicked(int id) {
+        if (id == R.id.settings) { //pokud je to klikanec na menu setting
+            restApi = null; //zahodime referenci na rest, bo to muze konfigurace zmenit, tak aby se to vyrobilo znova
+            startActivityForResult(new Intent(this, SetupActivity.class), SetupActivity.ACTIVITY_RESULT_REGISTER); //a startujeme aktivitu s nastavenima
+            return true; //nevim proc, asi ze jsem to zachytil
+        }
+        return false; //nevim proc, asi ze udalost nebyla zpracovana
     }
 
     private void startScan(int mode, String msg) {

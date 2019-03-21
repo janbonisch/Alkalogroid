@@ -18,65 +18,85 @@
             android:background="@color/colorPrimary"
             app:titleTextColor="@color/white" />
 
-        <ImageButton
-            android:id="@+id/drink"
+        <android.support.v4.widget.DrawerLayout
+            android:id="@+id/drawer_layout"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:adjustViewBounds="false"
-            android:cropToPadding="true"
-            app:srcCompat="@drawable/wine_glass_512" />
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/smalllog"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="horizontal"
-            tools:context=".MainActivity">
-
-            <ImageButton
-                android:id="@+id/buyFood"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/bunch_ingredients_icon_64" />
-
-            <ImageButton
-                android:id="@+id/buyFoodUndo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/bunch_ingredients_icon_x_64" />
-
-            <ImageButton
-                android:id="@+id/storeBottle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/fork_truck_icon_64" />
-
-            <ImageButton
-                android:id="@+id/storeBottleUndo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/fork_truck_icon_x_64" />
-
-            <ImageButton
-                android:id="@+id/fork"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/fork_64" />
-
-            <ImageButton
-                android:id="@+id/show"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/news_icon_64" />
+                android:orientation="vertical">
 
-        </LinearLayout>
+                <ImageButton
+                    android:id="@+id/drink"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="false"
+                    android:cropToPadding="true"
+                    app:srcCompat="@drawable/wine_glass_512" />
+
+                <TextView
+                    android:id="@+id/smalllog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal"
+                    tools:context=".MainActivity">
+
+                    <ImageButton
+                        android:id="@+id/buyFood"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/bunch_ingredients_icon_64" />
+
+                    <ImageButton
+                        android:id="@+id/buyFoodUndo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/bunch_ingredients_icon_x_64" />
+
+                    <ImageButton
+                        android:id="@+id/storeBottle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/fork_truck_icon_64" />
+
+                    <ImageButton
+                        android:id="@+id/storeBottleUndo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/fork_truck_icon_x_64" />
+
+                    <ImageButton
+                        android:id="@+id/fork"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/fork_64" />
+
+                    <ImageButton
+                        android:id="@+id/show"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/news_icon_64" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <android.support.design.widget.NavigationView
+                android:id="@+id/nav_view"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                app:menu="@menu/menu_drawer" />
+
+        </android.support.v4.widget.DrawerLayout>
     </LinearLayout>
 
     <FrameLayout
