@@ -66,6 +66,18 @@
     <string name="bottle_store_err">Chyba při naskladnění.</string>
     <string name="bottle_delete_ok">Láhev byla odstraněna ze skladu.</string>
     <string name="bottle_delete_err">Chyba při odstranění lahve ze skladu.</string>
+    <string name="buy_food">Nákup občerstvení.</string>
+    <string name="buy_food_ok">Nákup občerstvení byl uspěžně zaznamenán, dobrou chuť</string>
+    <string name="buy_food_err">Nákup občerstvení se nepovedlo uložit</string>
+    <string name="buy_food_undo_select">Vyber občerstvení k odstranění.</string>
+    <string name="buy_food_undo_nothink">Není co odstraňovat.</string>
+    <string name="buy_food_undo_ok">Občerstvení bylo úspěšně odstraněno.</string>
+    <string name="buy_food_undo_err">Chyba při odstranění občerstvení.</string>
+    <string name="restapi_http_error">Chyba %d.</string>
+    <string name="expert_mode">Nebezpečné funkce</string>
+    <string name="normal_mode">Funkce pro bělochy</string>
+
+
     <string name="open">Open</string>
     <string name="close">Close</string>
 

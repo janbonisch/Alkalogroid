@@ -5,15 +5,12 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.text.InputType;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -26,6 +23,7 @@ import com.scurab.barcodescanner2.base.RxLifecycleActivity;
 import com.scurab.barcodescanner2.forest.Consds;
 import com.scurab.barcodescanner2.forest.Consfs;
 import com.scurab.barcodescanner2.forest.ItemfView;
+import com.scurab.barcodescanner2.forest.Itemfs;
 import com.scurab.barcodescanner2.forest.UserDevices;
 
 import java.io.BufferedReader;
@@ -38,8 +36,6 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static retrofit2.converter.gson.GsonConverterFactory.create;
 
 
 public class MainActivity extends RxLifecycleActivity {
@@ -62,7 +58,6 @@ public class MainActivity extends RxLifecycleActivity {
     private static final int ID_EXT_MENU = ID_EXTRAS + 8; //extra menu
     private static final int ID_ALLOW_WEB_ACCESS = ID_EXTRAS + 9; //povolime web
     private static final int ID_LOG_EXT = ID_EXTRAS + 10; //rozsireny log
-    private static final int ID_LOG_HALP_GLASS= ID_EXTRAS + 11; //rozsireny log
     private static final int ID_WINE_BOTTLE_START = 100001; //pocatek kodu pro flasky vina
     private static final int ID_WINE_BOTTLE_END = 199999; //konec kodu pro flasky vina
     private static final String SCANNER_MODE = "scanner_mode"; //jak to prase si to ulozim do preferences, sichr je sichr
@@ -74,10 +69,9 @@ public class MainActivity extends RxLifecycleActivity {
     //
     //
     private static final int SCANNER_MODE_BASE = 1;  //normalni provoz, tedy akce podle naskenovaneho kodu
-    private static final int SCANNER_MODE_STORE_BOTTLE = 2;  //vkladame flasku
-    private static final int SCANNER_MODE_STORE_BOTTLE_UNDO = 3; //odstraneni vlozene flasky
-    private static final int SCANNER_MODE_HALF = 4; //pulsklenka
-    private static final int SCANNER_MODE_BOTTLE = 5; //cela flaska
+    private static final int SCANNER_MODE_STORE_BOTTLE_UNDO = 2; //odstraneni vlozene flasky
+    private static final int SCANNER_MODE_HALF = 3; //pulsklenka
+    private static final int SCANNER_MODE_BOTTLE = 4; //cela flaska
 
     //Muzeme vesele logovat, protoze zname itemfID
     private void logConsf(int itemfID) {
@@ -91,12 +85,19 @@ public class MainActivity extends RxLifecycleActivity {
     }
 
     //prevede seznam jidel na retezce
-    private String[] cosfToStrings(ItemfView[] items) {
+    private String[] cosfToStrings(ItemfView[] items, int mode) {
         SimpleDateFormat fc = new SimpleDateFormat("dd.MM.yyyy ", Locale.getDefault());
         int len = items.length; //kolik toho bude
         String[] choices = new String[len]; //vyrobime pole
         for (int i = 0; i < len; i++) { //a plnime datama
-            choices[i] = (fc.format(items[i].DtInsert)) + items[i].Username; //naformatujeme do lidskeho tvaru
+            switch (mode) {
+                case 1:
+                    choices[i] = (fc.format(items[i].DtInsert)) + " - "+ items[i].Price+" Kč"; //naformatujeme do lidskeho tvaru
+                    break;
+                default:
+                    choices[i] = (fc.format(items[i].DtInsert)) + items[i].Username; //naformatujeme do lidskeho tvaru
+                    break;
+            }
         }
         return choices;
     }
@@ -151,6 +152,22 @@ public class MainActivity extends RxLifecycleActivity {
         int id=barcode2int(sid); //prevedeme retezec na cislo
         if (id<0) return; //pokud to nedopadlo, tak slus
         getRestApi().deleteItemd(id).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.bottle_delete_ok)), err -> showError(getResources().getString(R.string.bottle_delete_err), err));
+    }
+
+    //zaznam jidla
+    private void buyFood(Double price) {
+        Itemfs s=new Itemfs();
+        s.Imei=getImei();
+        s.Price=price;
+        getRestApi().Itemfs(s).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.buy_food_ok)), err -> showError(getResources().getString(R.string.buy_food_err), err));
+    }
+
+    //Muzeme vesele logovat, protoze zname itemfID
+    private void buyFoodUndo(int itemfID) {
+        getRestApi().deleteConsf(itemfID).compose(common()).subscribe(r -> {
+            showOk(getResources().getString(R.string.buy_food_undo_ok));
+            updateDayInfo();
+        }, err -> showError(getResources().getString(R.string.buy_food_undo_err), err));
     }
 
     //==============================================================================================
@@ -262,7 +279,7 @@ public class MainActivity extends RxLifecycleActivity {
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this); //zrobime buildera dialogu
                 builder.setTitle(getResources().getString(R.string.log_consf_select)); //titulek a zprava
-                builder.setSingleChoiceItems(cosfToStrings(items), 0, (dialog, which) -> { //poslouchadlo na klikanec
+                builder.setSingleChoiceItems(cosfToStrings(items,0), 0, (dialog, which) -> { //poslouchadlo na klikanec
                     dialog.dismiss();
                     logConsf(items[which].ItemfID); //a to je von, trada logovat
                 });
@@ -270,6 +287,49 @@ public class MainActivity extends RxLifecycleActivity {
                 AlertDialog dialog = builder.create(); //vyrobime dialog
                 dialog.show(); //a zobrazim to
             }
+        }, err -> showError(getResources().getString(R.string.log_consf_error), err));
+    }
+
+    //kupujeme jidlo pres retezec, je treba z nej udelat cislo
+    private void buyFood(String price) {
+        try {
+            buyFood(Double.parseDouble(price)); //zkusime z toho udelat numero a provedeme vlastni akci
+        } catch (Exception e) { //debilni zadani
+            showError(getResources().getString(R.string.buy_food_err)); //posleme uzivatele do patricnych mezi
+        }
+    }
+
+    //Kupujeme jidlo
+    private void buyFood() {
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER); //chceme jen cisla
+        AlertDialog.Builder builder = new AlertDialog.Builder(this); //zrobime buildera dialogu
+        builder.setTitle(R.string.buy_food); //titulek a zprava
+        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        input.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        builder.setView(input);
+        builder.setPositiveButton(R.string.ok, (dialog, which) -> buyFood(input.getText().toString())); //a jdem to registrovat
+        builder.setNegativeButton(R.string.cancel,null); //a jdem to odregistrovat
+        AlertDialog dialog = builder.create(); //vyrobime dialog
+        dialog.show(); //a zobrazim to
+    }
+
+    //Odstraneni koupeneho jidla
+    private void buyFoodUndo() {
+        getRestApi().getItemfViewsGetAvailableForImei(getImei()).compose(common()).subscribe(items -> { //nejprve si zjistime, k jakymu jidlu se budeme prihlasovat
+            if (items.length<=0) {
+                showError(getResources().getString(R.string.buy_food_undo_nothink));
+                return;
+            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(this); //zrobime buildera dialogu
+            builder.setTitle(getResources().getString(R.string.buy_food_undo_select)); //titulek a zprava
+            builder.setSingleChoiceItems(cosfToStrings(items,1), 0, (dialog, which) -> { //poslouchadlo na klikanec
+                dialog.dismiss();
+                buyFoodUndo(items[which].ItemfID); //a to je von, trada logovat
+            });
+            builder.setNegativeButton(getResources().getString(R.string.cancel), null);
+            AlertDialog dialog = builder.create(); //vyrobime dialog
+            dialog.show(); //a zobrazim to
         }, err -> showError(getResources().getString(R.string.log_consf_error), err));
     }
 
@@ -287,6 +347,7 @@ public class MainActivity extends RxLifecycleActivity {
         dialog.show(); //a zobrazim to
     }
 
+    //Jednoduchy log
     private void simpleLog() {
         getDayInfo(dayInfo -> {
             showOk(getResources().getString(R.string.simple_log_title), String.format(getResources().getString(R.string.simple_log_text), dayInfo.drinks.length, dayInfo.food.length));
@@ -296,6 +357,7 @@ public class MainActivity extends RxLifecycleActivity {
         });
     }
 
+    //Podrobny log
     private void extLog() {
         getDayInfo(dayInfo -> { //natankujeme informace o dni
             setDayInfo(dayInfo); //schovam si to
@@ -348,7 +410,11 @@ public class MainActivity extends RxLifecycleActivity {
                     allowWebAccess();
                     break;
                 case ID_BUY_FOOD:
+                    buyFood();
+                    break;
                 case ID_BUY_FOOD_UNDO:
+                    buyFoodUndo();
+                    break;
                 default: //ostatni kody jsou jeden kus sklenice
                     if ((code >= ID_WINE_BOTTLE_START) && (code <= ID_WINE_BOTTLE_END)) {
                         logGlass(code,0.2);
@@ -397,6 +463,9 @@ public class MainActivity extends RxLifecycleActivity {
         findViewById(R.id.buyFoodUndo).setVisibility(visibility);
         findViewById(R.id.storeBottle).setVisibility(visibility);
         findViewById(R.id.storeBottleUndo).setVisibility(visibility);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.getMenu().findItem(R.id.expert_mode).setVisible(!ext);
+        navigationView.getMenu().findItem(R.id.normal_mode).setVisible(ext);
     }
 
     @SuppressLint("CheckResult")
@@ -425,7 +494,6 @@ public class MainActivity extends RxLifecycleActivity {
         findViewById(R.id.storeBottle).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE));
         findViewById(R.id.storeBottleUndo).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE_UNDO));
         setExtendedMode(SetupActivity.getExtmode(getSharedPreferences()));
-        setExtendedMode(true);
         setDayInfo(this.dayInfo);
     }
 
@@ -448,6 +516,12 @@ public class MainActivity extends RxLifecycleActivity {
                 break;
             case R.id.register:
                 register();
+                break;
+            case R.id.expert_mode:
+                setExtendedMode(true);
+                break;
+            case R.id.normal_mode:
+                setExtendedMode(false);
                 break;
             default:
                 return false; //nevim proc, asi ze udalost nebyla zpracovana

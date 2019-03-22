@@ -6,6 +6,14 @@
         android:title="@string/settings"
         app:showAsAction="always" />
     <item
+        android:id="@+id/expert_mode"
+        android:title="@string/expert_mode"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/normal_mode"
+        android:title="@string/normal_mode"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/enableweb"
         android:title="@string/enable_web"
         app:showAsAction="always" />

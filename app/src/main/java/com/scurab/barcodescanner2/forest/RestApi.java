@@ -13,6 +13,15 @@ import retrofit2.http.Url;
 
 public interface RestApi {
 
+    @DELETE("Itemfs/{id}")
+    Observable<Response<Void>> deleteConsf(@Path("id") int id);
+
+    @GET("ItemfViews/GetAvailableForImei/{emai}")   //https://zpa.westeurope.cloudapp.azure.com:8016/Items/ api/ItemfViews/GetAvailableForImei/<imei>
+    Observable<ItemfView[]> getItemfViewsGetAvailableForImei(@Path("emai") String emai);
+
+    @POST("Itemfs") //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/Itemfs
+    Observable<Empty> Itemfs(@Body Itemfs data);
+
     @DELETE("Itemds/{id}") //https://zpa.westeurope.cloudapp.azure.com:8016/Items/api/Itemds/<id>
     Observable<Response<Void>> deleteItemd(@Path("id") int id);
 

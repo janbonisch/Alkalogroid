@@ -24,6 +24,7 @@ import com.trello.rxlifecycle2.RxLifecycle;
 import com.trello.rxlifecycle2.android.ActivityEvent;
 import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
 
+import java.io.IOException;
 import java.util.Calendar;
 
 import io.reactivex.Observable;
@@ -32,7 +33,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.HttpException;
 import retrofit2.Retrofit;
@@ -89,12 +92,24 @@ public abstract class RxLifecycleActivity extends AppCompatActivity implements L
         return preferences;
     }
 
+    public class FailingInterecptor implements Interceptor {
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Response response = chain.proceed(chain.request());
+            if (response.code() >=400){
+                throw new IllegalStateException(String.format(getResources().getString(R.string.restapi_http_error),response.code()));
+            }
+            return response;
+        }
+    }
+
     public RestApi getRestApi() {
         if (restApi == null) { //lina inicializace
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(loggingInterceptor)
+                    .addInterceptor(new FailingInterecptor())
                     .build();
             Gson gson = new GsonBuilder()
                     .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
