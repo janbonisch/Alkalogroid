@@ -22,43 +22,52 @@
             app:title="@string/app_name"
             app:logo="@drawable/fork_truck_icon_64"
             app:titleMarginStart="30dp"/>
+
         <TextView
             android:id="@+id/label1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/bottle_owner" />
+
         <Spinner
             android:id="@+id/bottle_owner"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
+
         <TextView
             android:id="@+id/label2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/vintage" />
+
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/bottle_vintage" />
+
         <TextView
             android:id="@+id/label3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/bootle_type" />
+
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/bottle_type" />
+
         <TextView
             android:id="@+id/label4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/price" />
+
         <EditText
             android:id="@+id/bottle_price"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"/>
+
         <Button
             android:id="@+id/store_bottle"
             android:layout_width="match_parent"
@@ -66,6 +75,7 @@
             android:layout_gravity="end"
             android:lineSpacingExtra="18sp"
             android:text="@string/store_bottle" />
+
         <Button
             android:id="@+id/store_bottle_end"
             android:layout_width="match_parent"

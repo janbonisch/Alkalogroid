@@ -31,14 +31,26 @@ public class StoreBottleActivity extends RxLifecycleActivity {
     ItemdTypeYearViews vintage[] = null;
     ItemdType bottleType[] = null;
 
+    private void updateSpinnerData(Spinner spinner, String[] data) {
+        /* chtel jsem to mit hezky, ale nejako to nepremava
+        if ((spinner.getAdapter()==null)||(!(spinner.getAdapter() instanceof ArrayAdapter))) { //pokud neni adapter, nebo to neni arrayadapter
+            spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, android.R.id.text1, data)); //hodime hlasku
+            return; //a koncime
+        }
+        ArrayAdapter a=(ArrayAdapter)spinner.getAdapter();
+        a.clear(); //vymazeme
+        a.addAll(data); //a napereme novy data*/
+        spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, android.R.id.text1, data)); //hodime hlasku
+    }
+
     private void setSpinnerLoading(Spinner spinner) {
         spinner.setEnabled(false); //zatim nepovoleno, az budou data
-        spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, android.R.id.text1, new String[]{getResources().getString(R.string.loading)})); //hodime hlasku
+        updateSpinnerData(spinner,new String[]{getResources().getString(R.string.loading)});
     }
 
     private void setSPinnerShow(Spinner spinner, String[] items) {
         spinner.setEnabled(true); //a povol do nej hrabat
-        spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, android.R.id.text1, items)); //vyrob adaptera a naper ho do spineru
+        updateSpinnerData(spinner,items);
     }
 
     private User getUser(Object id) {
@@ -158,8 +170,6 @@ public class StoreBottleActivity extends RxLifecycleActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_store_bottle);
-        Toolbar toolbar = findViewById(R.id.toolbar); //tady je horni radek
-        toolbar.setLogo(R.drawable.fork_truck_icon_64); //naper k tomu ikonu
         progressBarContainer = findViewById(R.id.progress_bar_container);
         spinnerUser = (Spinner) findViewById(R.id.bottle_owner);
         spinnerVintage = (Spinner) findViewById(R.id.bottle_vintage);

@@ -366,11 +366,12 @@ public class MainActivity extends RxLifecycleActivity {
         int result=-1;
         if (code == null) { //neni nic
             showError(getResources().getString(R.string.barcode_error)); //pokud neni vubec nic, tak slus nahned
-        }
-        try {
-            result=(Integer.decode(code)); //zkusim z toho udelat numero a podle toho akce
-        } catch (Exception e) { //pokud doslo k nejakemu problemu, tak hlasim, problem vznikne jen pri chybe dekodovani cisla
-            showError(String.format(getResources().getString(R.string.barcode_bad_format), code)); //zobrazim chybu
+        } else {
+            try {
+                result = (Integer.decode(code)); //zkusim z toho udelat numero a podle toho akce
+            } catch (Exception e) { //pokud doslo k nejakemu problemu, tak hlasim, problem vznikne jen pri chybe dekodovani cisla
+                showError(String.format(getResources().getString(R.string.barcode_bad_format), code)); //zobrazim chybu
+            }
         }
         return result;
     }
@@ -406,15 +407,12 @@ public class MainActivity extends RxLifecycleActivity {
         progressBarContainer = findViewById(R.id.progress_bar_container);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(item -> onMenuItemClicked(item.getItemId()));
-
         toolbar.setOnMenuItemClickListener(item -> onMenuItemClicked(item.getItemId()));
         //posluchaci udalosti cudlu pouzivaji barcodeAction s prislusnym kodem, jak proste ;-)
         findViewById(R.id.drink).setOnClickListener(v -> startScan(SCANNER_MODE_BASE, ""));
@@ -427,22 +425,38 @@ public class MainActivity extends RxLifecycleActivity {
         findViewById(R.id.storeBottle).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE));
         findViewById(R.id.storeBottleUndo).setOnClickListener(v -> barcodeAction(ID_STORE_BOTTLE_UNDO));
         setExtendedMode(SetupActivity.getExtmode(getSharedPreferences()));
-        //setExtendedMode(true);
+        setExtendedMode(true);
         setDayInfo(this.dayInfo);
     }
 
     private boolean onMenuItemClicked(int id) {
-        if (id == R.id.settings) { //pokud je to klikanec na menu setting
-            restApi = null; //zahodime referenci na rest, bo to muze konfigurace zmenit, tak aby se to vyrobilo znova
-            startActivityForResult(new Intent(this, SetupActivity.class), SetupActivity.ACTIVITY_RESULT_REGISTER); //a startujeme aktivitu s nastavenima
-            return true; //nevim proc, asi ze jsem to zachytil
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        drawerLayout.closeDrawers();
+        switch (id) {
+            case R.id.settings: //pokud je to klikanec na menu setting
+                restApi = null; //zahodime referenci na rest, bo to muze konfigurace zmenit, tak aby se to vyrobilo znova
+                startActivityForResult(new Intent(this, SetupActivity.class), 0); //a startujeme aktivitu s nastavenima
+                break;
+            case R.id.update:
+                update();
+                break;
+            case R.id.about:
+                about();
+                break;
+            case R.id.enableweb:
+                allowWebAccess();
+                break;
+            case R.id.register:
+                register();
+                break;
+            default:
+                return false; //nevim proc, asi ze udalost nebyla zpracovana
         }
-        return false; //nevim proc, asi ze udalost nebyla zpracovana
+        return true; //nevim proc, asi ze jsem to zachytil
     }
 
     private void startScan(int mode, String msg) {
-        if (msg == null)
-            msg = getResources().getString(R.string.scan_a_barcode); //kdyz neni, dame universalni
+        if (msg == null) msg = getResources().getString(R.string.scan_a_barcode); //kdyz neni, dame universalni
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
         integrator.setPrompt(msg);
@@ -457,22 +471,6 @@ public class MainActivity extends RxLifecycleActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SetupActivity.ACTIVITY_RESULT_REGISTER) {
-            switch (resultCode) {
-                case SetupActivity.ACTIVITY_RESULT_REGISTER:
-                    register();
-                    return;
-                case SetupActivity.ACTIVITY_RESULT_UPDATE:
-                    update();
-                    return;
-                case SetupActivity.ACTIVITY_RESULT_ABOUT:
-                    about();
-                    return;
-                case SetupActivity.ACTIVITY_RESULT_ENABLEWEB:
-                    allowWebAccess();
-                    return;
-            }
-        }
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) { //pokud je to nejakej vysledek
             int mode = getScannerMode(); //ztisim, v jakym rezimu jsme scaner volali
@@ -498,11 +496,4 @@ public class MainActivity extends RxLifecycleActivity {
             super.onActivityResult(requestCode, resultCode, data); //hodime to dal a poptakach
         }
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
-    }
-
 }

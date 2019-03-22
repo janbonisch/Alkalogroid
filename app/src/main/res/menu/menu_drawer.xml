@@ -3,13 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/settings"
-        android:icon="@drawable/settings_64"
         android:title="@string/settings"
         app:showAsAction="always" />
-
     <item
-        android:id="@+id/settings2"
-        android:icon="@drawable/settings_64"
-        android:title="@string/settings"
+        android:id="@+id/enableweb"
+        android:title="@string/enable_web"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/register"
+        android:title="@string/register"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/update"
+        android:title="@string/update"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/about"
+        android:title="@string/about"
         app:showAsAction="always" />
 </menu>
+    <!-- android:icon="@drawable/settings_64" -->

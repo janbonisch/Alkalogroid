@@ -23,11 +23,6 @@ public class SetupActivity extends AppCompatActivity {
     //
     //
 
-    public static final int ACTIVITY_RESULT_REGISTER =0x4574;
-    public static final int ACTIVITY_RESULT_UPDATE =0x3580;
-    public static final int ACTIVITY_RESULT_ABOUT =0x1234;
-    public static final int ACTIVITY_RESULT_ENABLEWEB=0x4321;
-
     public static final String PREFS_NAME = "preferences";
     public static final int PREFS_MODE = Context.MODE_PRIVATE;
     private static final String PREFS_SERVICE_URL = "service_url";
@@ -99,43 +94,16 @@ public class SetupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup);
-        //TODO: nacpat do setuptitulku taky verzi
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, PREFS_MODE); //zrobim preference
-        ((Button) findViewById(R.id.register)).setText(getString(R.string.register)+"\n"+getString(R.string.unregister));
         ((EditText) findViewById(R.id.connection_string)).setText(getServiceUrl(prefs)); //url
         ((EditText) findViewById(R.id.barcode_timeout)).setText(String.valueOf(getTimeout(prefs))); //timeoutu
         ((EditText) findViewById(R.id.camera_id)).setText(String.valueOf(getCameraId(prefs))); //editor kamery
-        //cudl about
-        ((Button) findViewById(R.id.about)).setOnClickListener(v -> { //po klofnuti na cudl
-            storeData(); //ulozime novy data
-            setResult(ACTIVITY_RESULT_ABOUT); //rikam ze se chce update
-            this.finish(); //a koncime
-        });
-        //cudl update
-        ((Button) findViewById(R.id.update)).setOnClickListener(v -> { //po klofnuti na cudl
-            storeData(); //ulozime novy data
-            setResult(ACTIVITY_RESULT_UPDATE); //rikam ze se chce update
-            this.finish(); //a koncime
-        });
-        //cudl enable web
-        ((Button) findViewById(R.id.enableweb)).setOnClickListener(v -> { //po klofnuti na cudl
-            storeData(); //ulozime novy data
-            setResult(ACTIVITY_RESULT_ENABLEWEB); //rikam ze se chce update
-            this.finish(); //a koncime
-        });
         //cudl aplikujici zmeny
         ((Button) findViewById(R.id.apply)).setOnClickListener(v -> { //po klofnuti na cudl
             storeData(); //ulozime novy data
             setResult(Activity.RESULT_OK); //rikam ze je to ok
             this.finish(); //a koncime
         });
-        //cudl registrace zmeny
-        ((Button) findViewById(R.id.register)).setOnClickListener(v -> { //po klofnuti na cudl
-            storeData(); //ulozime novy data
-            setResult(ACTIVITY_RESULT_REGISTER); //rikam ze je to ok
-            this.finish(); //a koncime
-        });
+
     }
 }
