@@ -16,6 +16,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.scurab.barcodescanner2.R;
 import com.scurab.barcodescanner2.SetupActivity;
+import com.scurab.barcodescanner2.forest.ItemLogFood;
+import com.scurab.barcodescanner2.forest.ItemdView;
 import com.scurab.barcodescanner2.forest.RestApi;
 import com.scurab.barcodescanner2.forest.User;
 import com.trello.rxlifecycle2.LifecycleProvider;
@@ -25,6 +27,7 @@ import com.trello.rxlifecycle2.android.ActivityEvent;
 import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.util.Calendar;
 
 import io.reactivex.Observable;
@@ -266,6 +269,26 @@ public abstract class RxLifecycleActivity extends AppCompatActivity implements L
 
     //vyrobi informaci o konkretnim dni pro aktualniho uzivatele
     protected void getDayInfo(Calendar c, Consumer<DayInfo> onNext, Consumer<? super Throwable> onError) {
+        /*
+        DayInfo di = new DayInfo(); //zrobim si pomocnou tridu
+        di.drinks=new ItemdView[30];
+        di.food=new ItemLogFood[0];
+        for (int i=0;i<di.drinks.length;i++) {
+            di.drinks[i]=new ItemdView();
+            di.drinks[i].ConsdID=i;
+            di.drinks[i].ConsPrice=123;
+            di.drinks[i].Description="blabla";
+            di.drinks[i].DtCons=java.sql.Date.valueOf("2000-10-11");
+            di.drinks[i].Name="jmeno "+i;
+            di.drinks[i].Username="karel";
+            di.drinks[i].Volume=1;
+            di.drinks[i].Year=1234;
+        }
+        setDayInfo(di);
+        try {
+            onNext.accept(di);
+        } catch (Exception e) {
+        }*/
         getRestApi().getCondsD(getImei(), date4rest(c)).compose(common()).subscribe(drinks -> { //provedem dotaz na zkonzumovany chlast
             DayInfo di = new DayInfo(); //zrobim si pomocnou tridu
             di.drinks = drinks; //do ktery to budu skladak
