@@ -4,5 +4,6 @@ public class Itemds {
     public int ItemdID;
     public int ItemdTypeID;
     public String Username;
-    public Double Price;
+    public double Price;
+    public int Parts;
 }

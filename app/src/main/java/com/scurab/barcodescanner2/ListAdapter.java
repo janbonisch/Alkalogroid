@@ -60,12 +60,14 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ItemViewHolder
                 if (item.Description!=null) msg+='\n'+item.Description; //pokud je i neco navic, tak prihodime
                 holder.description.setText(msg); //no a toto je text polozky
                 holder.price.setText(mMoneyFormat.format(item.ConsPrice));
+                holder.amount.setText(Double.toString(item.Amount));
                 return;
             } else if (oi instanceof ItemLogFood) { //pokud je to jidlo
                 ItemLogFood item = (ItemLogFood) oi;
                 setHolderDate(holder,item.DtCons);
                 holder.description.setText(holder.itemView.getResources().getString(R.string.log_food)); //tak to dame jako nazev polozky
                 holder.price.setText(mMoneyFormat.format(item.ConsPrice));
+                holder.amount.setText("");
                 return;
             } else { //ostatni neumime,
                 msg = oi.toString(); //tak se z toho zkusime vylhat vseobjimajicim tostring
@@ -75,6 +77,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ItemViewHolder
         holder.time.setText(holder.itemView.getResources().getString(R.string.log_unknown_item_line_2));
         holder.description.setText(msg);
         holder.price.setText("");
+        holder.amount.setText("");
     }
 
     @Override
@@ -92,6 +95,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ItemViewHolder
         TextView date;
         TextView time;
         TextView description;
+        TextView amount;
         TextView price;
 
         public ItemViewHolder(View itemView) {
@@ -100,6 +104,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ItemViewHolder
             time = itemView.findViewById(R.id.itemTime);
             description = itemView.findViewById(R.id.itemDescription);
             price = itemView.findViewById(R.id.itemPrice);
+            amount =itemView.findViewById(R.id.itemAmount);
         }
     }
 }

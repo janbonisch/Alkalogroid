@@ -21,6 +21,7 @@ import com.google.zxing.integration.android.IntentResult;
 import com.scurab.barcodescanner2.base.DayInfo;
 import com.scurab.barcodescanner2.base.RxLifecycleActivity;
 import com.scurab.barcodescanner2.forest.Consds;
+import com.scurab.barcodescanner2.forest.Consds2;
 import com.scurab.barcodescanner2.forest.Consfs;
 import com.scurab.barcodescanner2.forest.ItemfView;
 import com.scurab.barcodescanner2.forest.Itemfs;
@@ -116,12 +117,34 @@ public class MainActivity extends RxLifecycleActivity {
         }
     }
 
+    private void logGlassAmountOfPart(int itemId, double amountOfPart) throws Exception {
+        if (itemId>=0) {
+            Consds2 c = new Consds2();
+            c.Imei = getImei();
+            c.ItemdID = itemId;
+            c.AmountOfPart=amountOfPart;
+            getRestApi().consds2(c).compose(common()).subscribe(r -> {
+                showOk(getResources().getString(R.string.log_glass_ok));
+                updateDayInfo();
+            }, err -> showError(getResources().getString(R.string.log_glass_error), err));
+        }
+    }
+
+
     private void logGlass(String itemId, double amount)  {
         try {
             logGlass(barcode2int(itemId), amount);
         } catch (Exception e) {
         }
     }
+
+    private void logGlassAmountOfPart(String itemId, double amount)  {
+        try {
+            logGlassAmountOfPart(barcode2int(itemId), amount);
+        } catch (Exception e) {
+        }
+    }
+
 
     //Povoleni pristupu na web
     private void allowWebAccess() {
@@ -417,7 +440,8 @@ public class MainActivity extends RxLifecycleActivity {
                     break;
                 default: //ostatni kody jsou jeden kus sklenice
                     if ((code >= ID_WINE_BOTTLE_START) && (code <= ID_WINE_BOTTLE_END)) {
-                        logGlass(code,0.2);
+                        //logGlass(code,0.2);
+                        logGlassAmountOfPart(code,1); //po novu nalevam jeden default
                     } else {
                         showError(String.format(getResources().getString(R.string.barcode_unknown_number), code)); //zobrazim chybu
                     }
@@ -487,7 +511,7 @@ public class MainActivity extends RxLifecycleActivity {
         findViewById(R.id.drink).setOnClickListener(v -> startScan(SCANNER_MODE_BASE, ""));
         findViewById(R.id.drink).setOnLongClickListener(v -> barcodeActionBoolean(ID_EXT_MENU));
         findViewById(R.id.fork).setOnClickListener(v -> barcodeAction(ID_FOOD));
-        findViewById(R.id.show).setOnClickListener(v -> barcodeAction(ID_LOG));
+        findViewById(R.id.show).setOnClickListener(v -> barcodeAction(ID_LOG_EXT)); //zkracenej nechceme
         findViewById(R.id.show).setOnLongClickListener(v -> barcodeActionBoolean(ID_LOG_EXT));
         findViewById(R.id.buyFood).setOnClickListener(v -> barcodeAction(ID_BUY_FOOD));
         findViewById(R.id.buyFoodUndo).setOnClickListener(v -> barcodeAction(ID_BUY_FOOD_UNDO));
@@ -557,10 +581,10 @@ public class MainActivity extends RxLifecycleActivity {
                     storeBottleUndo(result.getContents());
                     break;
                 case SCANNER_MODE_HALF:
-                    logGlass(result.getContents(),0.1);
+                    logGlassAmountOfPart(result.getContents(),0.5); //ponovu odebiram pul default
                     break;
                 case SCANNER_MODE_BOTTLE:
-                    logGlass(result.getContents(),1);
+                    logGlass(result.getContents(),1); //tohle zustava, beru celou flasku
                     break;
                 default:
                     showError("Unknown scanner mode " + mode);

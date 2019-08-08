@@ -315,14 +315,16 @@ public abstract class RxLifecycleActivity extends AppCompatActivity implements L
 
     protected void setDayInfo(DayInfo di) {
         this.dayInfo=di; //si to schovam napotom
+        findViewById(R.id.smalllog).setVisibility(View.GONE); /* uz to nechceme videt vubec, takze vzdy neviditelne
         if ((di==null)||(di.isEmpty())) { //necheme day info
-            findViewById(R.id.smalllog).setVisibility(View.GONE); //chci to vided
+            findViewById(R.id.smalllog).setVisibility(View.GONE); //nechci to vided
         } else { //chceme day info
             String msg=String.format(getResources().getString(R.string.simple_log_text), dayInfo.drinks.length, dayInfo.food.length); //hlaska do vokynka
             msg=msg.replace("\n","  "); //vyhazime odradkovani
             ((TextView)findViewById(R.id.smalllog)).setText(msg); //a to chci videt
             findViewById(R.id.smalllog).setVisibility(View.VISIBLE); //chci to vided
         }
+        */
     }
 
     //----------------------------------------------------------------------------------------------

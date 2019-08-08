@@ -8,4 +8,5 @@ public class ItemdType {
     public double Price;
     public double Volume;
     public double PercentVol;
+    public int Parts;
 }

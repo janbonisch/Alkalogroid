@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Alkalogroid</string>
+    <string name="app_name">Alkalogdroid</string>
     <string name="app_version">v1.6</string>
     <string name="scan">Scan</string>
     <string name="settings">Nastavení</string>
@@ -9,7 +9,7 @@
     <string name="ok">OK</string>
     <string name="cancel">Zrušit</string>
     <string name="canceled">Zrušeno</string>
-    <string name="barcode_scan">Načti čárovž kód</string>
+    <string name="barcode_scan">Načti čárový kód</string>
     <string name="barcode_bad_format">Unknown barcode format %s</string>
     <string name="barcode_unknown_number">Unknown barcode value %d</string>
     <string name="food_select">Vyberte datum</string>
@@ -80,6 +80,7 @@
 
     <string name="open">Open</string>
     <string name="close">Close</string>
+    <string name="num_of_items">Počet položek</string>
 
     <!--
     <string name="large_text">

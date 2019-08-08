@@ -23,5 +23,7 @@ public class ItemdView implements Serializable {
     public String Username;
     // Zkonzumováno kdy
     public Date DtCons;
+    // pocet
+    public double Amount;
 
 }

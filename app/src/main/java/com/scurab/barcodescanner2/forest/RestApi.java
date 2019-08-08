@@ -46,6 +46,9 @@ public interface RestApi {
     @POST("Consds")
     Observable<Empty> consds(@Body Consds data);
 
+    @POST("Consds")
+    Observable<Empty> consds2(@Body Consds2 data);
+
     @POST("Consfs")
     Observable<Empty> consfs(@Body Consfs data);
 

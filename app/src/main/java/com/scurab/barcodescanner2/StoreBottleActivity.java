@@ -27,6 +27,7 @@ public class StoreBottleActivity extends RxLifecycleActivity {
     Spinner spinnerVintage;
     Spinner spinnerBootleType;
     TextView price;
+    TextView numOfParts;
     User user[] = null;
     ItemdTypeYearViews vintage[] = null;
     ItemdType bottleType[] = null;
@@ -160,8 +161,10 @@ public class StoreBottleActivity extends RxLifecycleActivity {
         ItemdType i = getBottleType(spinnerBootleType.getSelectedItem()); //zjistim co to je
         if (i!=null) { //pro sichr
             price.setText(Double.toString(i.Price)); //vyplnime default cenu
+            numOfParts.setText((Integer.toString(i.Parts))); //vyplnime default pocet
         } else {
             price.setText("0"); //dost divny, ze jsme nic nenasli, dame nula
+            numOfParts.setText("1"); //a sklada se to z jedne casti
         }
     }
 
@@ -175,6 +178,7 @@ public class StoreBottleActivity extends RxLifecycleActivity {
         spinnerVintage = (Spinner) findViewById(R.id.bottle_vintage);
         spinnerBootleType = (Spinner) findViewById(R.id.bottle_type);
         price = (TextView) findViewById(R.id.bottle_price);
+        numOfParts=(TextView) findViewById(R.id.bottle_num_of_parts);
         //posluchaci udalosti cudlu pouzivaji barcodeAction s prislusnym kodem, jak proste ;-)
         findViewById(R.id.store_bottle).setOnClickListener(v -> startScan());
         ((Button) findViewById(R.id.store_bottle_end)).setOnClickListener(v -> { //po klofnuti na cudl
@@ -228,6 +232,7 @@ public class StoreBottleActivity extends RxLifecycleActivity {
                 b.Username = getUser(spinnerUser.getSelectedItem()).Username; //ci je flaska
                 b.ItemdTypeID = getBottleType(spinnerBootleType.getSelectedItem()).ItemdTypeID; //typ lahve
                 b.Price = Double.parseDouble(price.getText().toString()); //cena
+                b.Parts= Integer.decode(numOfParts.getText().toString()); //pocet
                 SetupActivity.setLastBottleStorageYear(getSharedPreferences(),Integer.decode(spinnerVintage.getSelectedItem().toString())); //ulozim si posledni pouzity rocnik, abych ho priste nabidl
             } catch (Exception e) { //neco se podelalo, nebudeme ukladat
                 showError(getResources().getString(R.string.store_bottle)+e.toString()); //nejako ukaz chybu

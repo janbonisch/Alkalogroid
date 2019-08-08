@@ -68,6 +68,18 @@
             android:layout_height="wrap_content"
             android:inputType="number"/>
 
+        <TextView
+            android:id="@+id/label5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/num_of_items" />
+
+        <EditText
+            android:id="@+id/bottle_num_of_parts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"/>
+
         <Button
             android:id="@+id/store_bottle"
             android:layout_width="match_parent"
