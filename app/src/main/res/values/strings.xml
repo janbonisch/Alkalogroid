@@ -81,6 +81,7 @@
     <string name="open">Open</string>
     <string name="close">Close</string>
     <string name="num_of_items">Počet položek</string>
+    <string name="adminweb">Webové rozhraní</string>
 
     <!--
     <string name="large_text">

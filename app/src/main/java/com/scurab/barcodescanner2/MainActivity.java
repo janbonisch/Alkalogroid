@@ -151,6 +151,12 @@ public class MainActivity extends RxLifecycleActivity {
         getRestApi().AllowWebAccess(getImei()).compose(common()).subscribe(r -> showOk(getResources().getString(R.string.allow_web_access_ok)), err -> showError(getResources().getString(R.string.allow_web_access_error), err));
     }
 
+    private void adminWeb() {
+        String url="https://zpa.westeurope.cloudapp.azure.com:8016/ItemsPresent/";
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.trim())); //a zkusime donutit robutka, aby to sosnul
+        startActivity(intent); //trada
+    }
+
     //registrace telefounu
     private void register(String username) {
         UserDevices ud = new UserDevices();
@@ -166,7 +172,7 @@ public class MainActivity extends RxLifecycleActivity {
 
     //spusteni aktualiace apky
     private void update(String url) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.trim())); //a zkusime donutit robutka, aby to sosnul
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.trim())); //zobrazim to
         startActivity(intent); //trada
     }
 
@@ -537,6 +543,9 @@ public class MainActivity extends RxLifecycleActivity {
                 break;
             case R.id.enableweb:
                 allowWebAccess();
+                break;
+            case R.id.adminweb:
+                adminWeb();
                 break;
             case R.id.register:
                 register();

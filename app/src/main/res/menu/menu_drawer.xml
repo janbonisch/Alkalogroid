@@ -18,6 +18,10 @@
         android:title="@string/enable_web"
         app:showAsAction="always" />
     <item
+        android:id="@+id/adminweb"
+        android:title="@string/adminweb"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/register"
         android:title="@string/register"
         app:showAsAction="always" />
